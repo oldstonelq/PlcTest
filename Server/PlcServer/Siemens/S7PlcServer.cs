@@ -583,7 +583,7 @@ namespace PlcTest.Server.PlcServer.Siemens
         }
 
         /// <summary>移除整个区域的登记（DB 区会清掉所有块），不动内存数据。</summary>
-        public override void ClearRegisters(MemoryArea area)
+        public override void RemoveAllRegisters(MemoryArea area)
         {
             foreach (int key in new List<int>(_registered.Keys))
             {

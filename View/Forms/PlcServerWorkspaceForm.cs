@@ -243,7 +243,7 @@ namespace PlcTest.View.Forms
                 return;
             }
 
-            _registerTable.ClearRegisters(address.Area);
+            _registerTable.RemoveAllRegisters(address.Area);
             _frameLog.Append(address.Area + " 区域的模拟地址已全部移除");
             _monitor.PollOnce();
         }

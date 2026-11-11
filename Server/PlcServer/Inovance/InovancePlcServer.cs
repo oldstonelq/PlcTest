@@ -378,7 +378,12 @@ namespace PlcTest.Server.PlcServer.Inovance
             return ContainsRegister(area, address);
         }
 
-        public override void ClearRegisters(MemoryArea area)
+        /// <summary>
+        /// 汇川服务端按「整片地址空间一直有效」建模，不像三菱/欧姆龙那样维护地址登记表，
+        /// 因此没有地址可删。这里退化为把该区域的值全部清零——界面读数会归零，
+        /// 但客户端仍能访问（不会报「地址不存在」）。
+        /// </summary>
+        public override void RemoveAllRegisters(MemoryArea area)
         {
             ResetAllRegisterValues(area);
         }

@@ -159,7 +159,7 @@ namespace PlcTest.Server.PlcServer
         public abstract bool TryAddRegister(MemoryArea area, int address);
 
         /// <summary>移除区域内的全部地址（值随之消失）。</summary>
-        public abstract void ClearRegisters(MemoryArea area);
+        public abstract void RemoveAllRegisters(MemoryArea area);
 
         /// <summary>把区间内的值清零，地址保留。</summary>
         public abstract void ResetRegisterValues(MemoryArea area, int start, int length);

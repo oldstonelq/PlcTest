@@ -53,7 +53,7 @@
     <Compile Include="Protocols\InovanceDeviceCatalog.cs" />
     <Compile Include="Protocols\ProtocolOptionCatalog.cs" />
     <Compile Include="Client\ClientProtocolManagement\Inovance\InovanceModbusRtuClientProtocol.cs" />
-    <Compile Include="Client\ClientProtocolManagement\Inovance\InovanceModbusTCPClientProtocol.cs" />
+    <Compile Include="Client\ClientProtocolManagement\Inovance\InovanceModbusTcpClientProtocol.cs" />
     <Compile Include="Protocols\Melsec1EDeviceCatalog.cs" />
     <Compile Include="Protocols\Melsec3E4EDeviceCatalog.cs" />
     <Compile Include="Client\ClientProtocolManagement\Melsec\MelsecMc1EAsciiClientProtocol.cs" />
