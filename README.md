@@ -76,6 +76,12 @@
 - **错误可分类**：`Result<T>` 带 `ErrorKind`（Validation / Transport / Protocol / DeviceEndCode）与 `EndCode`，调用方不必解析 `ErrorMsg` 字符串。
 - **依赖注入 + 模板方法**：构造函数都接收通讯接口与协议接口；`TemplateClientProtocol` / `TemplatePlcClient` 是留白的骨架，新增厂商时复制这两个文件往里填。
 - **心跳保活**：`Connect()` 同步建连并返回 `Result`（失败原因直接可见），成功后才起后台心跳线程，1 s 一轮，断线自动重连（`CommunicationPlcClient.HeartBeatLoop`）。
+- **命名约定**（2026-11 统一）：
+  - 事件不带 `Event` 后缀、也不带 `On` 前缀，用「发生过什么」的过去式：`MessageLogged` / `FrameLogged` / `DataReceived`。`OnXxx` 只留给订阅方的事件处理方法。
+  - 返回 `bool` 且用 `out` 带结果的方法一律 `TryXxx`（`TryParseCotpConnectResponse` / `TryParseHandshakeResponse`），不再写 `bool ParseXxx`。
+  - 局部变量用驼峰、说清是什么，不再用 `mData` / `mReStr` / `mPen` 这类匈牙利前缀，也不再写 `Data` / `Command` / `Length` 这种大写的临时变量（会和类型、属性撞名）。
+  - 名字要能区分**删地址**与**清零**：`RemoveAllRegisters`（删地址，客户端再访问会报地址不存在）对 `ResetAllRegisterValues`（地址保留、值置回初始值）。这两个方法曾经分别叫 `ClearRegisters` / `ResetAllRegisterValues`，`Clear` 太容易被理解成清零。
+  - 文件名与类名大小写一致，`csproj` 的 `<Compile Include>` 与磁盘逐字符一致（Windows 不报错，换大小写敏感的文件系统直接编译失败）。
 
 ## 协议支持
 
@@ -412,6 +418,7 @@ dotnet run -c Release --no-build
 - [ ] `btn_Trigger` 触发按钮还没有事件实现
 - [ ] 界面提示语改中文（当前是 `Please Check ...` 这类英文）
 - [ ] 用真实 PLC / 客户端做一次真机联调（本轮改造只做了编译 + 冒烟验证）
+- [ ] **汇川服务端的「移除区域」是退化的**：`InovancePlcServer.RemoveAllRegisters` 实际调用 `ResetAllRegisterValues`——汇川按「整片地址空间一直有效」建模，没有地址登记表可删，所以客户端之后仍能读到（读到 0），不会像三菱/欧姆龙那样报「地址不存在」。界面按钮与日志文案目前按「已移除」提示，与行为不符。要么按三菱那样引入地址登记表，要么让界面按服务端能力禁用该按钮
 
 > 汇川 T256–T511 只支持触点不是缺陷：手册 9.4.3 与 9.7 两处口径一致，寄存器编址只到 `T0~T255`。`TN` 上限 255、`TS` 上限 511 与手册一致。
 
@@ -444,6 +451,8 @@ dotnet run -c Release --no-build
 顺带记录、暂不单独立项：`PlcType` 与 `ProtocolType` 是双枚举（`PlcType` 的引用全在 `PlcClientBuilder` 内，只用于厂商/协议错配校验），加厂商要同时改两个；`PlcAddress` 是可变类且无 `Equals`，不能当字典键。
 
 ### 已完成（2026-11 归档）
+
+- [x] **命名规范统一（4 批）**：① `S7PlcServer` 项级参数 `request`→`item`、3 个返回 bool 的 `ParseXxx` 改 `TryParseXxx`；② 去掉 `mData`/`mReStr`/`mbyte`/`mPen`/`mLength` 等匈牙利前缀（6 个三菱协议 + `CommunicationPlcClient` + `MGroupBox`），三菱协议里 `Data`/`Command`/`Address`/`Length`/`RealData` 等大写局部变量改语义化驼峰（`frame`/`packet`/`addressText`/`lengthText`/`values`），`CommunicationPlcClient` 里与协议方法同名的局部 `BuildReadData`/`BuildCompletePack` 改 `commandBody`/`requestFrame`；③ 事件去 `Event` 后缀与 `On` 前缀（`ShowCommMessageEvent`→`MessageLogged`、`FrameEvent`→`FrameLogged`、`OnDataReceived`→`DataReceived`）；④ `ClearRegisters`→`RemoveAllRegisters`，并修掉 `Client/PLCClientBuilder.cs`、`Models/PLCAddress.cs`、`InovanceModbusTCPClientProtocol.cs` 三处文件名大小写，以及 `Client/PLCClient` 目录（`csproj` 与 git 索引原本混用两种大小写）
 
 - [x] **西门子 S7 服务端（从站）**：新增 `IS7ServerProtocol` / `S7RequestInfo` / `SiemensS71200ServerProtocol` / `S7PlcServer`，I/Q/M/DB 四区、位字共享字节内存、多变量、DB 按块惰性分配。`serverTcp` 已打开，界面两端都可选
 - [x] **协议选项统一通道**：`ProtocolOption` / `ProtocolOptionCatalog` / `IProtocolOptionHost` / `Builder.UseOptions()`，解决「机型只能强制转换、界面无法设置」
