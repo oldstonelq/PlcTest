@@ -154,7 +154,7 @@ namespace PlcTest.Server.ServerProtocolManagement.Siemens
 
         /// <summary>
         /// Setup Communication 应答：固定 27 字节（参数 8、数据 0），PDU 长度回显请求值。
-        /// 客户端的 <c>ParseSetupCommunicationResponse</c> 会核对「参数长度 8 + 数据长度 0 + 总长 27」
+        /// 客户端的 <c>TryParseSetupCommunicationResponse</c> 会核对「参数长度 8 + 数据长度 0 + 总长 27」
         /// 三者必须自洽，所以这里不能多也不能少。
         /// </summary>
         public byte[] BuildSetupCommunicationResponse(byte[] request)

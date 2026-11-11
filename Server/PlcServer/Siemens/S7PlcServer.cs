@@ -220,36 +220,36 @@ namespace PlcTest.Server.PlcServer.Siemens
         /// 读连续位。<paramref name="S7RequestInfo.ByteOffset"/> 是字节偏移，
         /// 位索引按「字节 × 8」展开——与客户端 <c>addrVal = Address * 8</c> 的口径一致。
         /// </summary>
-        private bool TryReadBits(S7ItemRequest request, out bool[] bits, out string error)
+        private bool TryReadBits(S7ItemRequest item, out bool[] bits, out string error)
         {
             bits = null;
             error = null;
 
-            byte[] buffer = BufferOf(request.Area, request.DbNumber);
+            byte[] buffer = BufferOf(item.Area, item.DbNumber);
             if (buffer == null)
             {
-                error = "不支持的存储区：" + request.Area;
+                error = "不支持的存储区：" + item.Area;
                 return false;
             }
-            if (request.ByteOffset < 0 || request.Length <= 0)
+            if (item.ByteOffset < 0 || item.Length <= 0)
             {
-                error = $"地址或长度非法（偏移 {request.ByteOffset}、长度 {request.Length}）";
+                error = $"地址或长度非法（偏移 {item.ByteOffset}、长度 {item.Length}）";
                 return false;
             }
 
-            int startBit = request.ByteOffset * 8;
-            int lastByte = (startBit + request.Length - 1) / 8;
+            int startBit = item.ByteOffset * 8;
+            int lastByte = (startBit + item.Length - 1) / 8;
             if (lastByte >= buffer.Length)
             {
                 // 明确报错，不学 HSL 那样「越界读返回全 0 且报成功」——
                 // 那样客户端拿到半真半假的数据，还以为是 PLC 里就是 0
-                error = $"越界：位 {startBit} + {request.Length} 超过 {request.Area} 区 {buffer.Length} 字节";
+                error = $"越界：位 {startBit} + {item.Length} 超过 {item.Area} 区 {buffer.Length} 字节";
                 return false;
             }
 
             lock (_memoryLock)
             {
-                bits = new bool[request.Length];
+                bits = new bool[item.Length];
                 for (int i = 0; i < bits.Length; i++)
                 {
                     int bit = startBit + i;
@@ -260,32 +260,32 @@ namespace PlcTest.Server.PlcServer.Siemens
         }
 
         /// <summary>读连续字，大端。</summary>
-        private bool TryReadWords(S7ItemRequest request, out short[] words, out string error)
+        private bool TryReadWords(S7ItemRequest item, out short[] words, out string error)
         {
             words = null;
             error = null;
 
-            byte[] buffer = BufferOf(request.Area, request.DbNumber);
+            byte[] buffer = BufferOf(item.Area, item.DbNumber);
             if (buffer == null)
             {
-                error = "不支持的存储区：" + request.Area;
+                error = "不支持的存储区：" + item.Area;
                 return false;
             }
 
-            int byteCount = request.Length * 2;
-            if (request.ByteOffset < 0 || request.Length <= 0
-                || request.ByteOffset + byteCount > buffer.Length)
+            int byteCount = item.Length * 2;
+            if (item.ByteOffset < 0 || item.Length <= 0
+                || item.ByteOffset + byteCount > buffer.Length)
             {
-                error = $"越界：字节 {request.ByteOffset} + {byteCount} 超过 {request.Area} 区 {buffer.Length} 字节";
+                error = $"越界：字节 {item.ByteOffset} + {byteCount} 超过 {item.Area} 区 {buffer.Length} 字节";
                 return false;
             }
 
             lock (_memoryLock)
             {
-                words = new short[request.Length];
+                words = new short[item.Length];
                 for (int i = 0; i < words.Length; i++)
                 {
-                    int at = request.ByteOffset + i * 2;
+                    int at = item.ByteOffset + i * 2;
                     words[i] = (short)((buffer[at] << 8) | buffer[at + 1]);
                 }
             }
@@ -296,56 +296,56 @@ namespace PlcTest.Server.PlcServer.Siemens
         /// 写入。位写有两种流派：逐点 1 字节（本项目客户端）与按位打包（标准），
         /// 用「数据长度 == 点数」还是「== 点数/8」来区分，两种都接受——否则只能二选一地「自洽」。
         /// </summary>
-        private bool TryWrite(S7ItemRequest request, out string error)
+        private bool TryWrite(S7ItemRequest item, out string error)
         {
             error = null;
 
-            byte[] buffer = BufferOf(request.Area, request.DbNumber);
+            byte[] buffer = BufferOf(item.Area, item.DbNumber);
             if (buffer == null)
             {
-                error = "不支持的存储区：" + request.Area;
+                error = "不支持的存储区：" + item.Area;
                 return false;
             }
-            if (request.WriteData == null || request.WriteData.Length == 0)
+            if (item.WriteData == null || item.WriteData.Length == 0)
             {
                 error = "写请求没有数据";
                 return false;
             }
 
-            if (request.IsBit)
+            if (item.IsBit)
             {
-                return TryWriteBits(buffer, request, out error);
+                return TryWriteBits(buffer, item, out error);
             }
-            return TryWriteWords(buffer, request, out error);
+            return TryWriteWords(buffer, item, out error);
         }
 
-        private bool TryWriteBits(byte[] buffer, S7ItemRequest request, out string error)
+        private bool TryWriteBits(byte[] buffer, S7ItemRequest item, out string error)
         {
             error = null;
 
-            int startBit = request.ByteOffset * 8;
-            int lastByte = (startBit + request.Length - 1) / 8;
-            if (request.ByteOffset < 0 || request.Length <= 0 || lastByte >= buffer.Length)
+            int startBit = item.ByteOffset * 8;
+            int lastByte = (startBit + item.Length - 1) / 8;
+            if (item.ByteOffset < 0 || item.Length <= 0 || lastByte >= buffer.Length)
             {
-                error = $"越界：位 {startBit} + {request.Length} 超过 {request.Area} 区 {buffer.Length} 字节";
+                error = $"越界：位 {startBit} + {item.Length} 超过 {item.Area} 区 {buffer.Length} 字节";
                 return false;
             }
 
-            bool packed = request.WriteData.Length != request.Length;
-            int required = packed ? (request.Length + 7) / 8 : request.Length;
-            if (request.WriteData.Length < required)
+            bool packed = item.WriteData.Length != item.Length;
+            int required = packed ? (item.Length + 7) / 8 : item.Length;
+            if (item.WriteData.Length < required)
             {
-                error = $"位写数据不足：需要 {required} 字节，实收 {request.WriteData.Length} 字节";
+                error = $"位写数据不足：需要 {required} 字节，实收 {item.WriteData.Length} 字节";
                 return false;
             }
 
             lock (_memoryLock)
             {
-                for (int i = 0; i < request.Length; i++)
+                for (int i = 0; i < item.Length; i++)
                 {
                     bool value = packed
-                        ? (request.WriteData[i >> 3] & (1 << (i & 7))) != 0
-                        : request.WriteData[i] != 0;
+                        ? (item.WriteData[i >> 3] & (1 << (i & 7))) != 0
+                        : item.WriteData[i] != 0;
 
                     int bit = startBit + i;
                     int index = bit >> 3;
@@ -363,26 +363,26 @@ namespace PlcTest.Server.PlcServer.Siemens
             return true;
         }
 
-        private bool TryWriteWords(byte[] buffer, S7ItemRequest request, out string error)
+        private bool TryWriteWords(byte[] buffer, S7ItemRequest item, out string error)
         {
             error = null;
 
-            int byteCount = request.Length * 2;
-            if (request.ByteOffset < 0 || request.Length <= 0
-                || request.ByteOffset + byteCount > buffer.Length)
+            int byteCount = item.Length * 2;
+            if (item.ByteOffset < 0 || item.Length <= 0
+                || item.ByteOffset + byteCount > buffer.Length)
             {
-                error = $"越界：字节 {request.ByteOffset} + {byteCount} 超过 {request.Area} 区 {buffer.Length} 字节";
+                error = $"越界：字节 {item.ByteOffset} + {byteCount} 超过 {item.Area} 区 {buffer.Length} 字节";
                 return false;
             }
-            if (request.WriteData.Length < byteCount)
+            if (item.WriteData.Length < byteCount)
             {
-                error = $"字写数据不足：需要 {byteCount} 字节，实收 {request.WriteData.Length} 字节";
+                error = $"字写数据不足：需要 {byteCount} 字节，实收 {item.WriteData.Length} 字节";
                 return false;
             }
 
             lock (_memoryLock)
             {
-                Array.Copy(request.WriteData, 0, buffer, request.ByteOffset, byteCount);
+                Array.Copy(item.WriteData, 0, buffer, item.ByteOffset, byteCount);
             }
             return true;
         }
@@ -430,15 +430,15 @@ namespace PlcTest.Server.PlcServer.Siemens
                 return Result<bool>.Fail("写入数据不能为空");
             }
 
-            var request = ToItem(address, values.Length, true);
-            request.WriteData = new byte[values.Length];
+            var item = ToItem(address, values.Length, true);
+            item.WriteData = new byte[values.Length];
             for (int i = 0; i < values.Length; i++)
             {
-                request.WriteData[i] = values[i] ? (byte)1 : (byte)0;
+                item.WriteData[i] = values[i] ? (byte)1 : (byte)0;
             }
 
             string error;
-            if (!TryWrite(request, out error))
+            if (!TryWrite(item, out error))
             {
                 return Result<bool>.Fail(error);
             }
@@ -481,16 +481,16 @@ namespace PlcTest.Server.PlcServer.Siemens
                 return Result<bool>.Fail("写入数据不能为空");
             }
 
-            var request = ToItem(address, values.Length, false);
-            request.WriteData = new byte[values.Length * 2];
+            var item = ToItem(address, values.Length, false);
+            item.WriteData = new byte[values.Length * 2];
             for (int i = 0; i < values.Length; i++)
             {
-                request.WriteData[i * 2] = (byte)((values[i] >> 8) & 0xFF);
-                request.WriteData[i * 2 + 1] = (byte)(values[i] & 0xFF);
+                item.WriteData[i * 2] = (byte)((values[i] >> 8) & 0xFF);
+                item.WriteData[i * 2 + 1] = (byte)(values[i] & 0xFF);
             }
 
             string error;
-            if (!TryWrite(request, out error))
+            if (!TryWrite(item, out error))
             {
                 return Result<bool>.Fail(error);
             }
