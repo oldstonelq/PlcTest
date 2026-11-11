@@ -13,33 +13,61 @@ namespace PlcTest.Models
     /// </summary>
     public enum MemoryArea
     {
+        /// <summary>特殊继电器 SM，可按位或按字</summary>
         SM,
+        /// <summary>特殊寄存器 SD，只能按字</summary>
         SD,
+        /// <summary>输入 X，可按位或按字（按字时每字 16 点）</summary>
         X,
+        /// <summary>输出 Y，可按位或按字（按字时每字 16 点）</summary>
         Y,
+        /// <summary>内部继电器 M，可按位或按字（按字时每字 16 点）</summary>
         M,
+        /// <summary>锁存继电器 L，可按位或按字</summary>
         L,
+        /// <summary>报警器 F，可按位或按字</summary>
         F,
+        /// <summary>变址继电器 V，可按位或按字</summary>
         V,
+        /// <summary>链接继电器 B，可按位或按字</summary>
         B,
+        /// <summary>数据寄存器 D，只能按字</summary>
         D,
+        /// <summary>链接寄存器 W，只能按字</summary>
         W,
+        /// <summary>定时器触点 TS，只能按位</summary>
         TS,
+        /// <summary>定时器线圈 TC，只能按位</summary>
         TC,
+        /// <summary>定时器当前值 TN，只能按字</summary>
         TN,
+        /// <summary>累计定时器触点 SS，只能按位</summary>
         SS,
+        /// <summary>累计定时器线圈 SC，只能按位</summary>
         SC,
+        /// <summary>累计定时器当前值 SN，只能按字</summary>
         SN,
+        /// <summary>计数器触点 CS，只能按位</summary>
         CS,
+        /// <summary>计数器线圈 CC，只能按位</summary>
         CC,
+        /// <summary>计数器当前值 CN，只能按字</summary>
         CN,
+        /// <summary>链接特殊继电器 SB，可按位或按字</summary>
         SB,
+        /// <summary>链接特殊寄存器 SW，只能按字</summary>
         SW,
+        /// <summary>步进继电器 S，可按位或按字</summary>
         S,
+        /// <summary>直接输入 DX，只能按位</summary>
         DX,
+        /// <summary>直接输出 DY，只能按位</summary>
         DY,
+        /// <summary>变址寄存器 Z，只能按字</summary>
         Z,
+        /// <summary>文件寄存器 R，只能按字</summary>
         R,
+        /// <summary>连号文件寄存器 ZR，只能按字</summary>
         ZR,
 
         // ---- 以下为欧姆龙（FINS）专用区 ----
@@ -56,7 +84,7 @@ namespace PlcTest.Models
         /// <summary>
         /// DB 区（Data Block，数据块）。块号存于 <see cref="PlcAddress.DbNumber"/>，
         /// 写法 <c>DB1.DBW0</c>：DB 号与块内字节偏移用点分隔。
-        /// 注意与三菱的 <see cref="V"/> 区分——那个是变址寄存器，语义完全不同。
+        /// 与三菱的 <see cref="V"/>（变址继电器）、<see cref="Z"/>（变址寄存器）都不是一回事。
         /// </summary>
         DB,
     }
