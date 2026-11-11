@@ -5,7 +5,7 @@ namespace PlcTest.Server.ServerInterface
     /// <summary>
     /// Modbus 从站请求的结构化表示。
     /// Modbus 与 MC 协议差异较大（没有结束码、响应带功能码与字节数、RTU 还要 CRC），
-    /// 因此单独建模，不复用 <see cref="RequestInfo"/>。
+    /// 因此单独建模，不复用 <see cref="PlcTest.Models.RequestInfo"/>。
     /// </summary>
     public sealed class ModbusRequestInfo
     {

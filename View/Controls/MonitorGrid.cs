@@ -391,6 +391,5 @@ namespace PlcTest.View.Controls
             cell.Value = text;
             cell.Style.ForeColor = isError ? Color.FromArgb(163, 45, 45) : Color.FromArgb(15, 110, 86);
         }
-        /// <summary>释放时停掉定时器，避免窗体关了还在轮询</summary>
     }
 }

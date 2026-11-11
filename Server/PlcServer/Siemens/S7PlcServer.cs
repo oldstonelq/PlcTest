@@ -217,7 +217,7 @@ namespace PlcTest.Server.PlcServer.Siemens
         }
 
         /// <summary>
-        /// 读连续位。<paramref name="S7RequestInfo.ByteOffset"/> 是字节偏移，
+        /// 读连续位。<see cref="S7ItemRequest.ByteOffset"/> 是字节偏移，
         /// 位索引按「字节 × 8」展开——与客户端 <c>addrVal = Address * 8</c> 的口径一致。
         /// </summary>
         private bool TryReadBits(S7ItemRequest item, out bool[] bits, out string error)

@@ -93,7 +93,7 @@ namespace PlcTest.Client.PlcClient.Template
         private CancellationTokenSource _cts;
         /// <summary>
         /// 心跳线程
-        /// </summary
+        /// </summary>
         private Task _connectTask;
         /// <summary>
         /// 关闭标志 True表示已关闭，False表示未关闭

@@ -100,7 +100,7 @@ namespace PlcTest.View.Support
         /// <summary>
         /// 反向格式化：把地址还原成用户可以继续编辑的文本，如 "M100"。
         /// <para>
-        /// 不能用 <see cref="PlcAddress.ToString"/>——它为了调试会给字地址加 "W" 后缀（"DW100"），
+        /// 不能用 <see cref="PlcAddress.ToString"/>——它为了调试会给字地址加 "W" 后缀（D100 -> "D100W"），
         /// 那个后缀不是合法输入，回填到输入框里再解析就会失败。
         /// </para>
         /// </summary>
