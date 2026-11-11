@@ -69,12 +69,12 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// <returns>打包后的字节数组</returns>
         public byte[] GetWriteBitData(bool[] bools)
         {
-            byte[] mData = new byte[bools.Length];
+            byte[] buffer = new byte[bools.Length];
             for (int i = 0; i < bools.Length; i++)
             {
-                mData[i] = bools[i] ? (byte)0x31 : (byte)0x30;
+                buffer[i] = bools[i] ? (byte)0x31 : (byte)0x30;
             }
-            return mData;
+            return buffer;
         }
         /// <summary>
         /// 写入字数据转Byte数组
@@ -83,13 +83,13 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// <returns打包后的字节数组></returns>
         public byte[] GetWriteWordData(short[] shorts)
         {
-            byte[] mData = new byte[shorts.Length * 4];
+            byte[] buffer = new byte[shorts.Length * 4];
             for (int i = 0; i < shorts.Length; i++)
             {
-                byte[] mbyte = Encoding.ASCII.GetBytes(Convert.ToString(shorts[i], 16).ToUpper().PadLeft(4, '0'));
-                mbyte.CopyTo(mData, i * 4);
+                byte[] ascii = Encoding.ASCII.GetBytes(Convert.ToString(shorts[i], 16).ToUpper().PadLeft(4, '0'));
+                ascii.CopyTo(buffer, i * 4);
             }
-          return mData;
+            return buffer;
         }
         /// <summary>
         /// 创建读取数据包
@@ -123,29 +123,29 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             int startAddress = address.Address;
             bool isBit = address.IsBit;
             int length = address.Length;
-            byte[] Data = new byte[20];
+            byte[] frame = new byte[20];
             //读:0401
-            Data[0] = 0x30;
-            Data[1] = 0x34;
-            Data[2] = 0x30;
-            Data[3] = 0x31;
+            frame[0] = 0x30;
+            frame[1] = 0x34;
+            frame[2] = 0x30;
+            frame[3] = 0x31;
             //以点为单位:0001,字为单位:0000
-            Data[4] = 0x30;
-            Data[5] = 0x30;
-            Data[6] = 0x30;
-            Data[7] = isBit ? (byte)0x31 : (byte)0x30;
+            frame[4] = 0x30;
+            frame[5] = 0x30;
+            frame[6] = 0x30;
+            frame[7] = isBit ? (byte)0x31 : (byte)0x30;
             //软元件类型（2 个 ASCII 字符，高字节为第 1 字符）
-            Data[8] = (byte)((memory >> 8) & 0xFF);
-            Data[9] = (byte)(memory & 0xFF);
+            frame[8] = (byte)((memory >> 8) & 0xFF);
+            frame[9] = (byte)(memory & 0xFF);
             //起始地址
-            string Address = Melsec3E4EDeviceCatalog.Get(address.Area).FormatIndex(startAddress, 6);
-            byte[] mbyte = Encoding.ASCII.GetBytes(Address);
-            Array.Copy(mbyte, 0, Data, 10, 6);
+            string addressText = Melsec3E4EDeviceCatalog.Get(address.Area).FormatIndex(startAddress, 6);
+            byte[] ascii = Encoding.ASCII.GetBytes(addressText);
+            Array.Copy(ascii, 0, frame, 10, 6);
             //软元件点数
-            string Length = Convert.ToString(length, 16).PadLeft(4, '0').ToUpper();
-            mbyte = Encoding.ASCII.GetBytes(Length);
-            Array.Copy(mbyte, 0, Data, 16, 4);
-            return Data;
+            string lengthText = Convert.ToString(length, 16).PadLeft(4, '0').ToUpper();
+            ascii = Encoding.ASCII.GetBytes(lengthText);
+            Array.Copy(ascii, 0, frame, 16, 4);
+            return frame;
         }
         /// <summary>
         /// 创建写入数据包
@@ -159,31 +159,31 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             int startAddress = address.Address;
             bool isBit = address.IsBit;
             int length = address.Length;
-            byte[] Data = new byte[20 + data.Length];
+            byte[] frame = new byte[20 + data.Length];
             //写:1401
-            Data[0] = 0x31;
-            Data[1] = 0x34;
-            Data[2] = 0x30;
-            Data[3] = 0x31;
+            frame[0] = 0x31;
+            frame[1] = 0x34;
+            frame[2] = 0x30;
+            frame[3] = 0x31;
             //以点为单位:0001,字为单位:0000
-            Data[4] = 0x30;
-            Data[5] = 0x30;
-            Data[6] = 0x30;
-            Data[7] = isBit ? (byte)0x31 : (byte)0x30;
+            frame[4] = 0x30;
+            frame[5] = 0x30;
+            frame[6] = 0x30;
+            frame[7] = isBit ? (byte)0x31 : (byte)0x30;
             //软元件类型（2 个 ASCII 字符，高字节为第 1 字符）
-            Data[8] = (byte)((memory >> 8) & 0xFF);
-            Data[9] = (byte)(memory & 0xFF);
+            frame[8] = (byte)((memory >> 8) & 0xFF);
+            frame[9] = (byte)(memory & 0xFF);
             //起始地址
-            string Address = Melsec3E4EDeviceCatalog.Get(address.Area).FormatIndex(startAddress, 6);
-            byte[] mbyte = Encoding.ASCII.GetBytes(Address);
-            Array.Copy(mbyte, 0, Data, 10, 6);
+            string addressText = Melsec3E4EDeviceCatalog.Get(address.Area).FormatIndex(startAddress, 6);
+            byte[] ascii = Encoding.ASCII.GetBytes(addressText);
+            Array.Copy(ascii, 0, frame, 10, 6);
             //软元件点数
-            string Length = Convert.ToString(length, 16).PadLeft(4, '0').ToUpper();
-            mbyte = Encoding.ASCII.GetBytes(Length);
-            Array.Copy(mbyte, 0, Data, 16, 4);
+            string lengthText = Convert.ToString(length, 16).PadLeft(4, '0').ToUpper();
+            ascii = Encoding.ASCII.GetBytes(lengthText);
+            Array.Copy(ascii, 0, frame, 16, 4);
             //状态
-            Array.Copy(data, 0, Data, 20, data.Length);
-            return Data;
+            Array.Copy(data, 0, frame, 20, data.Length);
+            return frame;
         }
         /// <summary>
         /// 拼接完整数据包
@@ -192,41 +192,41 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// <returns>完整命令报文</returns>
         public byte[] BuildCompletePack(byte[] data)
         {
-            byte[] Command = new byte[22 + data.Length];
+            byte[] packet = new byte[22 + data.Length];
             // 副标题
-            Command[0] = 0x35;
-            Command[1] = 0x30;
-            Command[2] = 0x30;
-            Command[3] = 0x30;
+            packet[0] = 0x35;
+            packet[1] = 0x30;
+            packet[2] = 0x30;
+            packet[3] = 0x30;
             //网络号（两位大写十六进制字符）
             byte[] networkBytes = Encoding.ASCII.GetBytes(NetworkNumber.ToString("X2"));
-            Command[4] = networkBytes[0];
-            Command[5] = networkBytes[1];
+            packet[4] = networkBytes[0];
+            packet[5] = networkBytes[1];
             // PLC编号
-            Command[6] = 0x46;
-            Command[7] = 0x46;
+            packet[6] = 0x46;
+            packet[7] = 0x46;
             // 目标模块IO编号
-            Command[8] = 0x30;
-            Command[9] = 0x33;
-            Command[10] = 0x46;
-            Command[11] = 0x46;
+            packet[8] = 0x30;
+            packet[9] = 0x33;
+            packet[10] = 0x46;
+            packet[11] = 0x46;
             //目标模块站号（两位大写十六进制字符）
             byte[] stationBytes = Encoding.ASCII.GetBytes(StationNumber.ToString("X2"));
-            Command[12] = stationBytes[0];
-            Command[13] = stationBytes[1];
+            packet[12] = stationBytes[0];
+            packet[13] = stationBytes[1];
             //数据长度
-            byte[] mByte = Encoding.ASCII.GetBytes(Convert.ToString(Command.Length - 18, 16).PadLeft(4, '0').ToUpper());
-            Command[14] = mByte[0];
-            Command[15] = mByte[1];
-            Command[16] = mByte[2];
-            Command[17] = mByte[3];
+            byte[] lengthAscii = Encoding.ASCII.GetBytes(Convert.ToString(packet.Length - 18, 16).PadLeft(4, '0').ToUpper());
+            packet[14] = lengthAscii[0];
+            packet[15] = lengthAscii[1];
+            packet[16] = lengthAscii[2];
+            packet[17] = lengthAscii[3];
             //CPU监视定时器
-            Command[18] = 0x30;
-            Command[19] = 0x30;
-            Command[20] = 0x31;
-            Command[21] = 0x30;
-            data.CopyTo(Command, 22);
-            return Command;
+            packet[18] = 0x30;
+            packet[19] = 0x30;
+            packet[20] = 0x31;
+            packet[21] = 0x30;
+            data.CopyTo(packet, 22);
+            return packet;
         }
         /// <summary>
         /// 解析写返回
@@ -241,8 +241,8 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
                 result.ErrorMsg = "返回数据为空";
                 return result;
             }
-            string mReStr = Encoding.ASCII.GetString(data);
-            if (mReStr.Length < 22)
+            string text = Encoding.ASCII.GetString(data);
+            if (text.Length < 22)
             {
                 result.ErrorMsg = "返回数据长度错误";
                 return result;
@@ -252,7 +252,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             //    result.ErrorMsg = "响应副标题错误";
             //    return result;
             //}
-            ushort endCode = Convert.ToUInt16(mReStr.Substring(18, 4), 16);
+            ushort endCode = Convert.ToUInt16(text.Substring(18, 4), 16);
             if (endCode != 0)
             {
                 result.ErrorMsg = $"结束代码错误: 0x{endCode:X4}";
@@ -279,8 +279,8 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
                 result.ErrorMsg = "返回数据为空";
                 return result;
             }
-            string mReStr = Encoding.ASCII.GetString(data);
-            if (mReStr.Length < 22 + size)
+            string text = Encoding.ASCII.GetString(data);
+            if (text.Length < 22 + size)
             {
                 result.ErrorMsg = "返回数据长度错误";
                 return result;
@@ -290,7 +290,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             //    result.ErrorMsg = "响应副标题错误";
             //    return result;
             //}
-            ushort endCode = Convert.ToUInt16(mReStr.Substring(18, 4), 16);
+            ushort endCode = Convert.ToUInt16(text.Substring(18, 4), 16);
             if (endCode != 0)
             {
                 result.ErrorMsg = $"结束代码错误: 0x{endCode:X4}";
@@ -300,11 +300,11 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             }
 
             // 解析返回数据
-            bool[] RealData = new bool[size];
-            RealData = mReStr.Substring(22, size).Select(o => o == '1').Take(size).ToArray();
+            bool[] values = new bool[size];
+            values = text.Substring(22, size).Select(o => o == '1').Take(size).ToArray();
 
             result.IsSuccess = true;
-            result.Data = RealData;
+            result.Data = values;
             return result;
         }
         /// <summary>
@@ -321,8 +321,8 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
                 result.ErrorMsg = "返回数据为空";
                 return result;
             }
-            string mReStr = Encoding.ASCII.GetString(data);
-            if (mReStr.Length < 22 + 4 * size)
+            string text = Encoding.ASCII.GetString(data);
+            if (text.Length < 22 + 4 * size)
             {
                 result.ErrorMsg = "返回数据长度错误";
                 return result;
@@ -332,7 +332,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             //    result.ErrorMsg = "响应副标题错误";
             //    return result;
             //}
-            ushort endCode = Convert.ToUInt16(mReStr.Substring(18, 4), 16);
+            ushort endCode = Convert.ToUInt16(text.Substring(18, 4), 16);
             if (endCode != 0)
             {
                 result.ErrorMsg = $"结束代码错误: 0x{endCode:X4}";
@@ -341,14 +341,14 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
                 return result;
             }
             //解析返回数据
-            short[] RealData = new short[size];
+            short[] values = new short[size];
             for (int i = 0; i < size; i++)
             {
-                RealData[i] = Convert.ToInt16(mReStr.Substring(22 + 4 * i, 4), 16);
+                values[i] = Convert.ToInt16(text.Substring(22 + 4 * i, 4), 16);
             }
 
             result.IsSuccess = true;
-            result.Data = RealData;
+            result.Data = values;
             return result;
         }
         /// <summary>

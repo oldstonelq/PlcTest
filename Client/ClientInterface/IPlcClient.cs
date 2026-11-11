@@ -94,17 +94,17 @@ namespace PlcTest.Client.ClientInterface
         /// <returns>写入结果</returns>
         Result<bool> WriteWordArray(PlcAddress address, short[] values);
         /// <summary>
-        /// 交互信息委托
+        /// 纯文本通讯日志，一行一条（已带方向与时间前缀）。
         /// </summary>
-         event Action<string> ShowCommMessageEvent;
+        event Action<string> MessageLogged;
 
         /// <summary>
-        /// 结构化通讯帧事件：带方向、时间与原始字节，供报文视图着色与复制。
+        /// 结构化通讯帧：带方向、时间与原始字节，供报文视图着色、复制与筛选。
         /// <para>
-        /// 与 <see cref="ShowCommMessageEvent"/> 同时触发、内容等价，后者保留给既有调用方；
-        /// 新界面订阅这一个就够（能同时收到收发帧与纯文本提示）。
+        /// 与 <see cref="MessageLogged"/> 同时触发、内容等价；
+        /// 报文视图订阅本事件即可（收发帧与纯文本提示从这里都能拿到）。
         /// </para>
         /// </summary>
-        event Action<CommFrame> FrameEvent;
+        event Action<CommFrame> FrameLogged;
     }
 }

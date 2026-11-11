@@ -32,8 +32,11 @@ namespace PlcTest.Server.ServerInterface
         /// <summary>按完整地址把区间内的值恢复为初始值（块号同理，默认忽略）。</summary>
         void ResetRegisterValues(PlcAddress address, int length);
 
-        /// <summary>清空指定区域的全部寄存器。</summary>
-        void ClearRegisters(MemoryArea area);
+        /// <summary>
+        /// 删除指定区域的全部寄存器地址——不是清零。清零请用 <see cref="ResetAllRegisterValues"/>，
+        /// 那一个保留地址只把值置回初始值。
+        /// </summary>
+        void RemoveAllRegisters(MemoryArea area);
 
         /// <summary>把指定区间内的寄存器值恢复为初始值。</summary>
         void ResetRegisterValues(MemoryArea area, int start, int length);

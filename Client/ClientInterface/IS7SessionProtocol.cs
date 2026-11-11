@@ -38,7 +38,7 @@ namespace PlcTest.Client.ClientInterface
         /// <param name="data">响应报文</param>
         /// <param name="error">失败原因</param>
         /// <returns>true 表示 COTP 层已连接</returns>
-        bool ParseCotpConnectResponse(byte[] data, out string error);
+        bool TryParseCotpConnectResponse(byte[] data, out string error);
 
         /// <summary>
         /// 构建 S7 的 Setup Communication 请求（功能码 0xF0，协商 PDU 长度）。
@@ -54,6 +54,6 @@ namespace PlcTest.Client.ClientInterface
         /// <param name="pduLength">PLC 协商出的 PDU 长度</param>
         /// <param name="error">失败原因</param>
         /// <returns>true 表示 S7 会话已建立</returns>
-        bool ParseSetupCommunicationResponse(byte[] data, out int pduLength, out string error);
+        bool TryParseSetupCommunicationResponse(byte[] data, out int pduLength, out string error);
     }
 }

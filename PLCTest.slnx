@@ -1,3 +1,9 @@
 <Solution>
-  <Project Path="PlcTest.csproj" Id="ce98231f-3546-483d-875d-c743a95165d3" />
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="PlcTest.csproj" Id="ce98231f-3546-483d-875d-c743a95165d3">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
 </Solution>

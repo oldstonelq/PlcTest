@@ -33,6 +33,6 @@ namespace PlcTest.Client.ClientInterface
         /// <param name="da1">PLC 节点号（目的）</param>
         /// <param name="error">失败原因</param>
         /// <returns>true 表示握手成功</returns>
-        bool ParseHandshakeResponse(byte[] data, out byte sa1, out byte da1, out string error);
+        bool TryParseHandshakeResponse(byte[] data, out byte sa1, out byte da1, out string error);
     }
 }

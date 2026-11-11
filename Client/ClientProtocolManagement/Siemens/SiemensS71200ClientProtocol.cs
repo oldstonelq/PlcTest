@@ -128,12 +128,12 @@ namespace PlcTest.Client.ClientProtocolManagement.Siemens
         /// <returns>写入数据区。</returns>
         public byte[] GetWriteBitData(bool[] bools)
         {
-            byte[] mData = new byte[bools.Length];
+            byte[] buffer = new byte[bools.Length];
             for (int i = 0; i < bools.Length; i++)
             {
-                mData[i] = bools[i] ? (byte)0x01 : (byte)0x00;
+                buffer[i] = bools[i] ? (byte)0x01 : (byte)0x00;
             }
-            return mData;
+            return buffer;
         }
 
         /// <summary>
@@ -146,14 +146,14 @@ namespace PlcTest.Client.ClientProtocolManagement.Siemens
         /// <returns>写入数据区。</returns>
         public byte[] GetWriteWordData(short[] shorts)
         {
-            byte[] mData = new byte[shorts.Length * 2];
+            byte[] buffer = new byte[shorts.Length * 2];
             for (int i = 0; i < shorts.Length; i++)
             {
                 byte[] bytes = BitConverter.GetBytes(shorts[i]);
-                mData[i * 2] = bytes[1];
-                mData[i * 2 + 1] = bytes[0];
+                buffer[i * 2] = bytes[1];
+                buffer[i * 2 + 1] = bytes[0];
             }
-            return mData;
+            return buffer;
         }
 
         /// <summary>
@@ -921,7 +921,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Siemens
         /// <summary>
         /// 解析 COTP 连接确认（Connection Confirm，PDU 类型 0xD0）。
         /// </summary>
-        public bool ParseCotpConnectResponse(byte[] data, out string error)
+        public bool TryParseCotpConnectResponse(byte[] data, out string error)
         {
             error = null;
             if (data == null || data.Length < 7)
@@ -1003,7 +1003,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Siemens
         /// <summary>
         /// 解析 Setup Communication 响应，取回 PLC 允许的 PDU 长度。
         /// </summary>
-        public bool ParseSetupCommunicationResponse(byte[] data, out int pduLength, out string error)
+        public bool TryParseSetupCommunicationResponse(byte[] data, out int pduLength, out string error)
         {
             pduLength = 0;
             error = null;

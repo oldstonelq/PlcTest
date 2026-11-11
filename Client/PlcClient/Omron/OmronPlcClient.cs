@@ -74,7 +74,7 @@ namespace PlcTest.Client.PlcClient.Omron
                 string error;
                 byte sa1;
                 byte da1;
-                if (!fins.ParseHandshakeResponse(response, out sa1, out da1, out error))
+                if (!fins.TryParseHandshakeResponse(response, out sa1, out da1, out error))
                 {
                     return Result<bool>.Fail(error);
                 }

@@ -72,20 +72,20 @@ namespace PlcTest.View.Controls
             }
 
             // 3. 画边框（用 using 确保 Pen 释放）
-            using (Pen mPen = new Pen(this._borderColor))
+            using (Pen pen = new Pen(this._borderColor))
             {
                 float lineY = FontSize.Height / 2 + textY; // 让边框线对齐文字中间
 
                 // 字左侧的实线
-                g.DrawLine(mPen, 1, lineY, 8, lineY);
+                g.DrawLine(pen, 1, lineY, 8, lineY);
                 // 字右侧的实线
-                g.DrawLine(mPen, FontSize.Width + 8, lineY, this.Width - 2, lineY);
+                g.DrawLine(pen, FontSize.Width + 8, lineY, this.Width - 2, lineY);
                 // 左侧竖线
-                g.DrawLine(mPen, 1, lineY, 1, this.Height - 2);
+                g.DrawLine(pen, 1, lineY, 1, this.Height - 2);
                 // 底部横线
-                g.DrawLine(mPen, 1, this.Height - 2, this.Width - 2, this.Height - 2);
+                g.DrawLine(pen, 1, this.Height - 2, this.Width - 2, this.Height - 2);
                 // 右侧竖线
-                g.DrawLine(mPen, this.Width - 2, lineY, this.Width - 2, this.Height - 2);
+                g.DrawLine(pen, this.Width - 2, lineY, this.Width - 2, this.Height - 2);
             }
         }
     }

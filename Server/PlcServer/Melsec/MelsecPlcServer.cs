@@ -446,9 +446,9 @@ namespace PlcTest.Server.PlcServer.Melsec
         }
 
         /// <summary>
-        /// 清空指定区域的位表与字表
+        /// 删除指定区域登记的全部地址（位表与字表），不是清零
         /// </summary>
-        public override void ClearRegisters(MemoryArea area)
+        public override void RemoveAllRegisters(MemoryArea area)
         {
             ConcurrentDictionary<int, bool> bits;
             if (_bitTables.TryGetValue(area, out bits))
@@ -501,8 +501,8 @@ namespace PlcTest.Server.PlcServer.Melsec
 
         /// <summary>
         /// 把指定区域的位表与字表全部恢复初始值（**保留地址**）。
-        /// 与 <see cref="ClearRegisters"/> 的区别：那个是移除地址本身，这个只把值清零。
-        /// 若这里图省事调 ClearRegisters，地址会整片消失，界面表格随之清空，
+        /// 与 <see cref="RemoveAllRegisters"/> 的区别：那个是移除地址本身，这个只把值清零。
+        /// 若这里图省事调 RemoveAllRegisters，地址会整片消失，界面表格随之清空，
         /// 客户端也会读不到原本声明过的地址——这正是"ClearAll 把寄存器删掉"那个 bug。
         /// </summary>
         public override void ResetAllRegisterValues(MemoryArea area)

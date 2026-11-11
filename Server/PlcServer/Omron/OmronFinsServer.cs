@@ -399,7 +399,7 @@ namespace PlcTest.Server.PlcServer.Omron
             return addedBit || addedWord;
         }
 
-        public override void ClearRegisters(MemoryArea area)
+        public override void RemoveAllRegisters(MemoryArea area)
         {
             foreach (var pair in _bitTables)
             {
@@ -437,7 +437,7 @@ namespace PlcTest.Server.PlcServer.Omron
 
         /// <summary>
         /// 把指定区域（含 EM 各存储体）的位表与字表全部恢复初始值（**保留地址**）。
-        /// 与 <see cref="ClearRegisters"/> 的区别：那个移除地址，这个只把值清零，
+        /// 与 <see cref="RemoveAllRegisters"/> 的区别：那个移除地址，这个只把值清零，
         /// 否则界面的地址列表会整片消失、客户端也读不到原本声明过的地址。
         /// </summary>
         public override void ResetAllRegisterValues(MemoryArea area)

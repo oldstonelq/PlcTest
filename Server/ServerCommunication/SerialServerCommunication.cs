@@ -41,7 +41,7 @@ namespace PlcTest.Server.ServerCommunication
         /// <summary>
         /// 接收数据委托（串口无客户端概念，client 恒为 null）
         /// </summary>
-        public event Action<byte[], IClientSession> OnDataReceived;
+        public event Action<byte[], IClientSession> DataReceived;
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -132,7 +132,7 @@ namespace PlcTest.Server.ServerCommunication
                     byte[] frame = ReadFrame();
                     if (frame == null) return;
                     byte[] copy = frame;
-                    ThreadPool.QueueUserWorkItem(_ => OnDataReceived?.Invoke(copy, null));
+                    ThreadPool.QueueUserWorkItem(_ => DataReceived?.Invoke(copy, null));
                 }
             }
             catch { }

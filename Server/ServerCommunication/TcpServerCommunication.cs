@@ -76,7 +76,7 @@ namespace PlcTest.Server.ServerCommunication
         /// <summary>
         /// 客户端数据到达事件（附带客户端连接句柄）
         /// </summary>
-        public event Action<byte[], IClientSession> OnDataReceived;
+        public event Action<byte[], IClientSession> DataReceived;
 
         /// <summary>
         /// 构造函数
@@ -303,7 +303,7 @@ namespace PlcTest.Server.ServerCommunication
                         {
                             break;
                         }
-                        OnDataReceived?.Invoke(frame, session);
+                        DataReceived?.Invoke(frame, session);
                     }
                     RemoveSession(session);
                 }

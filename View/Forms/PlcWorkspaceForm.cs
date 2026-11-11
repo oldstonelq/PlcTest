@@ -96,7 +96,7 @@ namespace PlcTest.View.Forms
             _btnClearResult.Click += (s, e) => _tbReadResult.Clear();
             _btnWrite.Click += OnWriteClick;
 
-            _client.FrameEvent += _frameLog.Append;
+            _client.FrameLogged += _frameLog.Append;
 
             _statusTimer.Tick += (s, e) => RefreshStatus();
             _statusTimer.Start();
@@ -455,7 +455,7 @@ namespace PlcTest.View.Forms
         {
             if (_client != null)
             {
-                try { _client.FrameEvent -= _frameLog.Append; } catch { }
+                try { _client.FrameLogged -= _frameLog.Append; } catch { }
             }
 
             try

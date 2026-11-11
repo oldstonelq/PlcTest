@@ -52,16 +52,16 @@ namespace PlcTest.Server.PlcServer
         }
 
         /// <summary>
-        /// 通讯日志事件（与客户端 <c>IPlcClient.ShowCommMessageEvent</c> 对称）。
+        /// 纯文本通讯日志（与客户端 <c>IPlcClient.MessageLogged</c> 对称）。
         /// 事件在协议线程上触发，订阅方自己负责切回 UI 线程。
         /// </summary>
-        public event Action<string> ShowCommMessageEvent;
+        public event Action<string> MessageLogged;
 
         /// <summary>
-        /// 结构化通讯帧事件（与客户端 <c>IPlcClient.FrameEvent</c> 对称）。
-        /// 同时触发旧的字符串事件，两者内容等价。
+        /// 结构化通讯帧（与客户端 <c>IPlcClient.FrameLogged</c> 对称）。
+        /// 与 <see cref="MessageLogged"/> 同时触发，两者内容等价。
         /// </summary>
-        public event Action<CommFrame> FrameEvent;
+        public event Action<CommFrame> FrameLogged;
 
         /// <summary>
         /// 启动服务：挂接收委托、开通讯、记一条日志。重复调用是空操作。
@@ -73,7 +73,7 @@ namespace PlcTest.Server.PlcServer
                 return;
             }
 
-            _comm.OnDataReceived += OnDataReceived;
+            _comm.DataReceived += OnDataReceived;
             _comm.Start();
             LogComm("服务端已启动，等待客户端连接");
         }
@@ -88,7 +88,7 @@ namespace PlcTest.Server.PlcServer
                 return;
             }
 
-            _comm.OnDataReceived -= OnDataReceived;
+            _comm.DataReceived -= OnDataReceived;
             _comm.Stop();
             LogComm("服务端已停止");
         }
@@ -159,7 +159,7 @@ namespace PlcTest.Server.PlcServer
         public abstract bool TryAddRegister(MemoryArea area, int address);
 
         /// <summary>移除区域内的全部地址（值随之消失）。</summary>
-        public abstract void ClearRegisters(MemoryArea area);
+        public abstract void RemoveAllRegisters(MemoryArea area);
 
         /// <summary>把区间内的值清零，地址保留。</summary>
         public abstract void ResetRegisterValues(MemoryArea area, int start, int length);
@@ -201,8 +201,8 @@ namespace PlcTest.Server.PlcServer
         }
 
         /// <summary>
-        /// 记一条收发帧。旧事件收到的文本与重构前逐字一致（"发送报文: 01-FF"），
-        /// 新事件额外带上方向与原始字节。
+        /// 记一条收发帧。<c>MessageLogged</c> 收到的文本与重构前逐字一致（"发送报文: 01-FF"），
+        /// <c>FrameLogged</c> 额外带上方向与原始字节。
         /// </summary>
         /// <param name="isSend">true 表示本端发出</param>
         /// <param name="frame">完整报文</param>
@@ -218,7 +218,7 @@ namespace PlcTest.Server.PlcServer
         /// </summary>
         private void RaiseSafe(string message, CommFrame frame)
         {
-            Action<string> messageHandler = ShowCommMessageEvent;
+            Action<string> messageHandler = MessageLogged;
             if (messageHandler != null)
             {
                 try
@@ -231,7 +231,7 @@ namespace PlcTest.Server.PlcServer
                 }
             }
 
-            Action<CommFrame> frameHandler = FrameEvent;
+            Action<CommFrame> frameHandler = FrameLogged;
             if (frameHandler != null)
             {
                 try

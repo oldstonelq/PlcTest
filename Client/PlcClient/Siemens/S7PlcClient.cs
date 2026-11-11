@@ -68,7 +68,7 @@ namespace PlcTest.Client.PlcClient.Siemens
                 byte[] cotpResponse = _comm.SendAndReceiveData(cotpRequest, _communicationProtocol.GetResponseFrameLength);
 
                 string error;
-                if (!s7.ParseCotpConnectResponse(cotpResponse, out error))
+                if (!s7.TryParseCotpConnectResponse(cotpResponse, out error))
                 {
                     return Result<bool>.Fail(error);
                 }
@@ -79,7 +79,7 @@ namespace PlcTest.Client.PlcClient.Siemens
                 byte[] setupResponse = _comm.SendAndReceiveData(setupRequest, _communicationProtocol.GetResponseFrameLength);
 
                 int pduLength;
-                if (!s7.ParseSetupCommunicationResponse(setupResponse, out pduLength, out error))
+                if (!s7.TryParseSetupCommunicationResponse(setupResponse, out pduLength, out error))
                 {
                     return Result<bool>.Fail(error);
                 }

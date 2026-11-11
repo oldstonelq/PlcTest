@@ -366,7 +366,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Omron
         /// <param name="da1">输出：PLC 节点号</param>
         /// <param name="error">失败原因</param>
         /// <returns>是否成功</returns>
-        public bool ParseHandshakeResponse(byte[] data, out byte sa1, out byte da1, out string error)
+        public bool TryParseHandshakeResponse(byte[] data, out byte sa1, out byte da1, out string error)
         {
             sa1 = 0;
             da1 = 0;
