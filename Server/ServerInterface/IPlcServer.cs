@@ -35,15 +35,15 @@ namespace PlcTest.Server.ServerInterface
         Result<bool> WriteWordArray(PlcAddress address, short[] values);
 
         /// <summary>
-        /// 通讯日志事件：收到 / 发出的原始报文、以及丢弃、异常等提示。
+        /// 纯文本通讯日志：收到 / 发出的原始报文、以及丢弃、异常等提示。
         /// 由协议线程触发，订阅方（界面）需要自己切回 UI 线程再更新控件。
         /// </summary>
-        event Action<string> ShowCommMessageEvent;
+        event Action<string> MessageLogged;
 
         /// <summary>
-        /// 结构化通讯帧事件：带方向、时间与原始字节，供报文视图着色与复制。
-        /// 与 <see cref="ShowCommMessageEvent"/> 同时触发、内容等价，后者保留给既有调用方。
+        /// 结构化通讯帧：带方向、时间与原始字节，供报文视图着色、复制与筛选。
+        /// 与 <see cref="MessageLogged"/> 同时触发、内容等价。
         /// </summary>
-        event Action<CommFrame> FrameEvent;
+        event Action<CommFrame> FrameLogged;
     }
 }

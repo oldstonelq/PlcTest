@@ -39,7 +39,7 @@ namespace PlcTest.Server.ServerInterface
         /// <summary>
         /// 客户端数据到达事件（附带客户端句柄）
         /// </summary>
-        event Action<byte[], IClientSession> OnDataReceived;
+        event Action<byte[], IClientSession> DataReceived;
     }
 
     /// <summary>

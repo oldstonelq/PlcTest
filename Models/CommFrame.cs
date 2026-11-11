@@ -18,13 +18,13 @@ namespace PlcTest.Models
     /// <summary>
     /// 一条结构化的通讯日志：时间 + 方向 + 原始报文 + 说明。
     /// <para>
-    /// 为什么不再用字符串：旧事件 <c>ShowCommMessageEvent</c> 只给一句拼好的文本
+    /// 为什么不再用字符串：纯文本事件 <c>MessageLogged</c> 只给一句拼好的文本
     /// （"发送报文: 01-FF-…"），界面要按方向着色、要一列 HEX 一列 ASCII、要复制原始帧，
     /// 就只能去解析这行文本——等于把日志格式当成协议来逆向。这里把方向和字节直接带出来。
     /// </para>
     /// <para>
     /// 兼容性：<see cref="ToLogText"/> 生成的文本与重构前**逐字相同**，
-    /// 所以旧的字符串事件继续原样触发，老调用方和既有测试不受影响。
+    /// 所以 <c>MessageLogged</c> 继续原样触发，既有测试与日志比对不受影响。
     /// </para>
     /// </summary>
     public sealed class CommFrame
@@ -114,7 +114,7 @@ namespace PlcTest.Models
         }
 
         /// <summary>
-        /// 拼成旧事件使用的那一行文本，保证与重构前逐字一致：
+        /// 拼成 <c>MessageLogged</c> 使用的那一行文本，保证与重构前逐字一致：
         /// 收发帧为「说明: XX-XX」，提示为原文。
         /// </summary>
         public string ToLogText()
