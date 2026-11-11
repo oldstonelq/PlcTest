@@ -247,11 +247,11 @@ namespace PlcTest.Client.PlcClient
                 }
                 address = Normalize(address, true);
                 //2.拼接数据报文并构建完整报文
-                byte[] BuildReadData = _communicationProtocol.BuildReadData(address);
-                byte[] BuildCompletePack = _communicationProtocol.BuildCompletePack(BuildReadData);
+                byte[] commandBody = _communicationProtocol.BuildReadData(address);
+                byte[] requestFrame = _communicationProtocol.BuildCompletePack(commandBody);
                 byte[] receiveBytes;
                 string commError;
-                if (!TrySendAndReceive(BuildCompletePack, out receiveBytes, out commError))
+                if (!TrySendAndReceive(requestFrame, out receiveBytes, out commError))
                 {
                     result.ErrorMsg = commError;
                     result.Kind = ErrorKind.Transport;
@@ -352,13 +352,13 @@ namespace PlcTest.Client.PlcClient
                 }
                 address = Normalize(address, true);
                 //2.计算数据
-                byte[] mData = _communicationProtocol.GetWriteBitData(new bool[1] { value });
+                byte[] writeData = _communicationProtocol.GetWriteBitData(new bool[1] { value });
                 //3.拼接数据报文并构建完整报文
-                byte[] BuildWriteData = _communicationProtocol.BuildWriteData(address, mData);
-                byte[] BuildCompletePack = _communicationProtocol.BuildCompletePack(BuildWriteData);
+                byte[] commandBody = _communicationProtocol.BuildWriteData(address, writeData);
+                byte[] requestFrame = _communicationProtocol.BuildCompletePack(commandBody);
                 byte[] receiveBytes;
                 string commError;
-                if (!TrySendAndReceive(BuildCompletePack, out receiveBytes, out commError))
+                if (!TrySendAndReceive(requestFrame, out receiveBytes, out commError))
                 {
                     result.ErrorMsg = commError;
                     result.Kind = ErrorKind.Transport;
@@ -436,8 +436,8 @@ namespace PlcTest.Client.PlcClient
         /// <summary>写一段位（单帧）。</summary>
         private Result<bool> WriteBitChunk(PlcAddress address, bool[] values)
         {
-            byte[] mData = _communicationProtocol.GetWriteBitData(values);
-            byte[] buildWriteData = _communicationProtocol.BuildWriteData(address, mData);
+            byte[] writeData = _communicationProtocol.GetWriteBitData(values);
+            byte[] buildWriteData = _communicationProtocol.BuildWriteData(address, writeData);
             byte[] buildCompletePack = _communicationProtocol.BuildCompletePack(buildWriteData);
             byte[] receiveBytes;
             string commError;
@@ -467,11 +467,11 @@ namespace PlcTest.Client.PlcClient
                 }
                 address = Normalize(address, false);
                 //2.拼接数据报文并构建完整报文
-                byte[] BuildReadData = _communicationProtocol.BuildReadData(address);
-                byte[] BuildCompletePack = _communicationProtocol.BuildCompletePack(BuildReadData);
+                byte[] commandBody = _communicationProtocol.BuildReadData(address);
+                byte[] requestFrame = _communicationProtocol.BuildCompletePack(commandBody);
                 byte[] receiveBytes;
                 string commError;
-                if (!TrySendAndReceive(BuildCompletePack, out receiveBytes, out commError))
+                if (!TrySendAndReceive(requestFrame, out receiveBytes, out commError))
                 {
                     result.ErrorMsg = commError;
                     result.Kind = ErrorKind.Transport;
@@ -570,13 +570,13 @@ namespace PlcTest.Client.PlcClient
                 }
                 address = Normalize(address, false);
                 //2.计算打包后字节
-                byte[] mData = _communicationProtocol.GetWriteWordData(new short[1] { value });
+                byte[] writeData = _communicationProtocol.GetWriteWordData(new short[1] { value });
                 //3.拼接数据报文并构建完整报文
-                byte[] BuildWriteData = _communicationProtocol.BuildWriteData(address, mData);
-                byte[] BuildCompletePack = _communicationProtocol.BuildCompletePack(BuildWriteData);
+                byte[] commandBody = _communicationProtocol.BuildWriteData(address, writeData);
+                byte[] requestFrame = _communicationProtocol.BuildCompletePack(commandBody);
                 byte[] receiveBytes;
                 string commError;
-                if (!TrySendAndReceive(BuildCompletePack, out receiveBytes, out commError))
+                if (!TrySendAndReceive(requestFrame, out receiveBytes, out commError))
                 {
                     result.ErrorMsg = commError;
                     result.Kind = ErrorKind.Transport;
@@ -651,8 +651,8 @@ namespace PlcTest.Client.PlcClient
         /// <summary>写一段字（单帧）。</summary>
         private Result<bool> WriteWordChunk(PlcAddress address, short[] values)
         {
-            byte[] mData = _communicationProtocol.GetWriteWordData(values);
-            byte[] buildWriteData = _communicationProtocol.BuildWriteData(address, mData);
+            byte[] writeData = _communicationProtocol.GetWriteWordData(values);
+            byte[] buildWriteData = _communicationProtocol.BuildWriteData(address, writeData);
             byte[] buildCompletePack = _communicationProtocol.BuildCompletePack(buildWriteData);
             byte[] receiveBytes;
             string commError;

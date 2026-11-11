@@ -128,12 +128,12 @@ namespace PlcTest.Client.ClientProtocolManagement.Siemens
         /// <returns>写入数据区。</returns>
         public byte[] GetWriteBitData(bool[] bools)
         {
-            byte[] mData = new byte[bools.Length];
+            byte[] buffer = new byte[bools.Length];
             for (int i = 0; i < bools.Length; i++)
             {
-                mData[i] = bools[i] ? (byte)0x01 : (byte)0x00;
+                buffer[i] = bools[i] ? (byte)0x01 : (byte)0x00;
             }
-            return mData;
+            return buffer;
         }
 
         /// <summary>
@@ -146,14 +146,14 @@ namespace PlcTest.Client.ClientProtocolManagement.Siemens
         /// <returns>写入数据区。</returns>
         public byte[] GetWriteWordData(short[] shorts)
         {
-            byte[] mData = new byte[shorts.Length * 2];
+            byte[] buffer = new byte[shorts.Length * 2];
             for (int i = 0; i < shorts.Length; i++)
             {
                 byte[] bytes = BitConverter.GetBytes(shorts[i]);
-                mData[i * 2] = bytes[1];
-                mData[i * 2 + 1] = bytes[0];
+                buffer[i * 2] = bytes[1];
+                buffer[i * 2 + 1] = bytes[0];
             }
-            return mData;
+            return buffer;
         }
 
         /// <summary>

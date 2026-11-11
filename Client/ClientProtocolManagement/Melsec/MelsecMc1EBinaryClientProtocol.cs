@@ -83,15 +83,15 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// <returns>打包后的字节数组</returns>
         public byte[] GetWriteBitData(bool[] bools)
         {
-            int mLength = (bools.Length + 1) / 2;
-            byte[] mData = new byte[mLength];
+            int byteCount = (bools.Length + 1) / 2;
+            byte[] buffer = new byte[byteCount];
 
-            for (int i = 0; i < mLength; i++)
+            for (int i = 0; i < byteCount; i++)
             {
                 // 第 2*i 位 → 高4位 0x10
                 if (bools[i * 2])
                 {
-                    mData[i] += 0x10;
+                    buffer[i] += 0x10;
                 }
                 // 判断是否存在下一组bit
                 int secondBitIndex = i * 2 + 1;
@@ -100,11 +100,11 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
                     // 第 2*i+1 位 → 低4位 0x01
                     if (bools[secondBitIndex])
                     {
-                        mData[i] += 0x01;
+                        buffer[i] += 0x01;
                     }
                 }
             }
-            return mData;
+            return buffer;
         }
         /// <summary>
         /// 写入字数据转Byte数组
@@ -113,13 +113,13 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// <returns打包后的字节数组></returns>
         public byte[] GetWriteWordData(short[] shorts)
         {
-            byte[] mData = new byte[shorts.Length * 2];
+            byte[] buffer = new byte[shorts.Length * 2];
             for (int i = 0; i < shorts.Length; i++)
             {
-                byte[] mbyte = BitConverter.GetBytes(shorts[i]);
-                mbyte.CopyTo(mData, i * 2);
+                byte[] ascii = BitConverter.GetBytes(shorts[i]);
+                ascii.CopyTo(buffer, i * 2);
             }
-            return mData;
+            return buffer;
         }
         /// <summary>
         /// 创建读取数据包
@@ -132,26 +132,26 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             int startAddress = address.Address;
             bool isBit = address.IsBit;
             int length = address.Length;
-            byte[] Data = new byte[12];
+            byte[] frame = new byte[12];
             //副头部：功能码：0x00 批量位读取 0x01 批量字读取
-            Data[0] = isBit ? (byte)0x00 : (byte)0x01;
+            frame[0] = isBit ? (byte)0x00 : (byte)0x01;
             //PLC编号 默认OXFF
-            Data[1] = 0xFF;
+            frame[1] = 0xFF;
             //超时时间 默认  0A 00
-            Data[2] = 0x0A;
-            Data[3] = 0x00;
+            frame[2] = 0x0A;
+            frame[3] = 0x00;
             //起始地址
-            Data[4] = BitConverter.GetBytes(startAddress)[0];
-            Data[5] = BitConverter.GetBytes(startAddress)[1];
-            Data[6] = BitConverter.GetBytes(startAddress)[2];
-            Data[7] = BitConverter.GetBytes(startAddress)[3];
+            frame[4] = BitConverter.GetBytes(startAddress)[0];
+            frame[5] = BitConverter.GetBytes(startAddress)[1];
+            frame[6] = BitConverter.GetBytes(startAddress)[2];
+            frame[7] = BitConverter.GetBytes(startAddress)[3];
             //寄存器类型
-            Data[8] = (byte)(memory);
-            Data[9] = (byte)(memory >> 8);
+            frame[8] = (byte)(memory);
+            frame[9] = (byte)(memory >> 8);
             //读取长度
-            Data[10] = BitConverter.GetBytes(length)[0];
-            Data[11] = BitConverter.GetBytes(length)[1];
-            return Data;
+            frame[10] = BitConverter.GetBytes(length)[0];
+            frame[11] = BitConverter.GetBytes(length)[1];
+            return frame;
         }
         /// <summary>
         /// 创建写入数据包
@@ -165,28 +165,28 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             int startAddress = address.Address;
             bool isBit = address.IsBit;
             int length = address.Length;
-            byte[] Data = new byte[12+data.Length];
+            byte[] frame = new byte[12+data.Length];
             //副头部：功能码：0x00 批量位写入 0x01 批量字写入
-            Data[0] = isBit ? (byte)0x02 : (byte)0x03;
+            frame[0] = isBit ? (byte)0x02 : (byte)0x03;
             //PLC编号 默认OXFF
-            Data[1] = 0xFF;
+            frame[1] = 0xFF;
             //超时时间 默认  0A 00
-            Data[2] = 0x0A;
-            Data[3] = 0x00;
+            frame[2] = 0x0A;
+            frame[3] = 0x00;
             //起始地址
-            Data[4] = BitConverter.GetBytes(startAddress)[0];
-            Data[5] = BitConverter.GetBytes(startAddress)[1];
-            Data[6] = BitConverter.GetBytes(startAddress)[2];
-            Data[7] = BitConverter.GetBytes(startAddress)[3];
+            frame[4] = BitConverter.GetBytes(startAddress)[0];
+            frame[5] = BitConverter.GetBytes(startAddress)[1];
+            frame[6] = BitConverter.GetBytes(startAddress)[2];
+            frame[7] = BitConverter.GetBytes(startAddress)[3];
             //寄存器类型
-            Data[8] = (byte)(memory);
-            Data[9] = (byte)(memory >> 8);
+            frame[8] = (byte)(memory);
+            frame[9] = (byte)(memory >> 8);
             //读取长度
-            Data[10] = BitConverter.GetBytes(length)[0];
-            Data[11] = BitConverter.GetBytes(length)[1];
+            frame[10] = BitConverter.GetBytes(length)[0];
+            frame[11] = BitConverter.GetBytes(length)[1];
             //写入数据
-            data.CopyTo(Data, 12);
-            return Data;
+            data.CopyTo(frame, 12);
+            return frame;
         }
         /// <summary>
         /// 拼接完整数据包
