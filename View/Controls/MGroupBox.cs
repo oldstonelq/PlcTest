@@ -17,6 +17,7 @@ namespace PlcTest.View.Controls
     /// </summary>
     public partial class MGroupBox : GroupBox
     {
+        /// <summary>边框颜色</summary>
         private Color _borderColor = Color.Black;
 
         /// <summary>边框颜色，赋值后立即重绘。</summary>

@@ -365,6 +365,7 @@ namespace PlcTest.View.Controls
             return Read(address);
         }
 
+        /// <summary>调一次读取委托，异常在这里兜住，统一转成失败结果。</summary>
         private MonitorReadResult Read(PlcAddress address)
         {
             try
@@ -527,6 +528,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>写状态列，并按成败着色。</summary>
         private void SetStatus(int rowIndex, string text, bool isError)
         {
             if (rowIndex < 0 || rowIndex >= _grid.Rows.Count)

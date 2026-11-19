@@ -19,11 +19,15 @@ namespace PlcTest.View.Controls
     /// </summary>
     public partial class MonitorDetailView : UserControl
     {
+        /// <summary>被选中区块的底色</summary>
         private static readonly Color SelectedBack = Color.FromArgb(232, 242, 252);
 
+        /// <summary>区块列表，与监视条目一一对应</summary>
         private readonly List<MonitorRegionBlock> _blocks = new List<MonitorRegionBlock>();
+        /// <summary>当前条目快照，用来判断结构是否变化、要不要重建</summary>
         private readonly List<MonitorItem> _items = new List<MonitorItem>();
 
+        /// <summary>选中的区块序号，-1 表示未选中</summary>
         private int _selectedIndex = -1;
 
         /// <summary>构造：绑选项与尺寸变化</summary>
@@ -192,6 +196,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>条目内容是否与当前一致（一致就不用重建控件）。</summary>
         private bool IsSameAsCurrent(List<MonitorItem> next)
         {
             if (next.Count != _items.Count)
@@ -214,6 +219,7 @@ namespace PlcTest.View.Controls
             return true;
         }
 
+        /// <summary>按「仅显示选中区域」决定各区块是否可见。</summary>
         private void ApplyFilter()
         {
             bool only = _chkOnlySelected.Checked;
@@ -231,6 +237,7 @@ namespace PlcTest.View.Controls
             ResizeBlocks();
         }
 
+        /// <summary>给选中的区块换底色，其余恢复。</summary>
         private void HighlightSelection()
         {
             for (int i = 0; i < _blocks.Count; i++)
@@ -239,6 +246,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>让每个区块的宽度跟随容器。</summary>
         private void ResizeBlocks()
         {
             // 容器还没布局出尺寸时不要硬算：否则会按 200 的下限把块压扁，

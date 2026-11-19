@@ -17,6 +17,7 @@ namespace PlcTest.Protocols
     /// </summary>
     public static class ProtocolOptionCatalog
     {
+        /// <summary>协议没有任何私有选项时返回的空集合</summary>
         private static readonly ProtocolOption[] None = new ProtocolOption[0];
 
         /// <summary>

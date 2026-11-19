@@ -253,6 +253,7 @@ namespace PlcTest.View.Support
             return TryMatch(areas, text, out area, out numberText);
         }
 
+        /// <summary>在候选区域里做最长前缀匹配，并要求剩余部分是纯数字。</summary>
         private static bool TryMatch(
             IList<MemoryArea> candidates, string text, out MemoryArea area, out string numberText)
         {
@@ -288,6 +289,7 @@ namespace PlcTest.View.Support
             return false;
         }
 
+        /// <summary>全部软元件代码，缓存一次供「这个写法本身是否存在」的判断使用</summary>
         private static IList<MemoryArea> _allAreas;
 
         /// <summary>
@@ -307,6 +309,7 @@ namespace PlcTest.View.Support
             return _allAreas;
         }
 
+        /// <summary>是否全是十进制数字（空串算否）。</summary>
         private static bool IsAllDigits(string text)
         {
             if (string.IsNullOrEmpty(text))

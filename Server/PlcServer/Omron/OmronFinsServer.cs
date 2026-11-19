@@ -15,7 +15,9 @@ namespace PlcTest.Server.PlcServer.Omron
     /// </summary>
     public class OmronFinsServer : PlcServerBase
     {
+        /// <summary>FINS 协议实现</summary>
         private readonly IOmronFinsServerProtocol _protocol;
+        /// <summary>软元件存储的并发锁</summary>
         private readonly object _memoryLock = new object();
 
         /// <summary>位表：key = 区域与存储体编码</summary>
@@ -146,6 +148,7 @@ namespace PlcTest.Server.PlcServer.Omron
             return word;
         }
 
+        /// <summary>处理读请求：按区域与长度取值，拼成 FINS 响应。</summary>
         private byte[] HandleRead(OmronFinsRequestInfo request, OmronFinsAreaResolution area, int address)
         {
             int key = TableKey(area);
@@ -170,6 +173,7 @@ namespace PlcTest.Server.PlcServer.Omron
             return _protocol.BuildReadWordResponse(request, values);
         }
 
+        /// <summary>处理写请求：落盘并回写结束码。</summary>
         private byte[] HandleWrite(OmronFinsRequestInfo request, OmronFinsAreaResolution area, int address)
         {
             int key = TableKey(area);
@@ -209,6 +213,7 @@ namespace PlcTest.Server.PlcServer.Omron
             return ((int)area.Spec.Area << 8) | bank;
         }
 
+        /// <summary>区域 + bank 合成登记表的 key，避免不同 bank 互相覆盖。</summary>
         private static int TableKey(MemoryArea memoryArea, int? dbNumber)
         {
             int bank = dbNumber.HasValue ? (dbNumber.Value & 0xFF) : 0xFF;

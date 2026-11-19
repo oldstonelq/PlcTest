@@ -82,6 +82,7 @@ namespace PlcTest.Protocols
     /// </summary>
     public sealed class InovanceDeviceSpec
     {
+        /// <summary>汇川各软元件的地址分段（含中间空洞）</summary>
         private readonly List<InovanceRegisterSegment> _segments;
 
         /// <summary>软元件区域</summary>

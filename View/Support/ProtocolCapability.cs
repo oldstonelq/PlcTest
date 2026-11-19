@@ -29,6 +29,7 @@ namespace PlcTest.View.Support
         public static readonly ProtocolCapability Empty =
             new ProtocolCapability(ProtocolType.MelsecMc3EBinary, new List<DeviceAreaInfo>());
 
+        /// <summary>该协议支持的软元件区域，构造后不再变化</summary>
         private readonly List<DeviceAreaInfo> _areas;
         private readonly Dictionary<MemoryArea, DeviceAreaInfo> _index;
 

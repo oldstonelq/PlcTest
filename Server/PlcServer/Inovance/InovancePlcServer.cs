@@ -17,7 +17,9 @@ namespace PlcTest.Server.PlcServer.Inovance
         /// <summary>Modbus 地址空间大小（0 ~ 65535）</summary>
         private const int AddressSpace = 65536;
 
+        /// <summary>Modbus 协议实现</summary>
         private readonly IModbusServerProtocol _protocol;
+        /// <summary>软元件存储的并发锁</summary>
         private readonly object _memoryLock = new object();
 
         /// <summary>线圈表（按 Modbus 地址索引）</summary>

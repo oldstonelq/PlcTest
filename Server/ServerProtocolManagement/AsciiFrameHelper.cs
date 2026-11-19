@@ -33,6 +33,7 @@ namespace PlcTest.Server.ServerProtocolManagement
             return true;
         }
 
+        /// <summary>单个十六进制字符转数值，非法字符返回 -1。</summary>
         private static int HexValue(byte b)
         {
             if (b >= '0' && b <= '9') return b - '0';

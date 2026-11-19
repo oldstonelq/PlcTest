@@ -28,13 +28,20 @@ namespace PlcTest.View.Controls
         private const int CellHeight = 24;
         private const int BarHeight = 26;
 
+        /// <summary>交替行底色，让相邻行不糊在一起</summary>
         private static readonly Color AlternateRow = Color.FromArgb(247, 248, 250);
+        /// <summary>位值为 1 时的文字色</summary>
         private static readonly Color BitOn = Color.FromArgb(15, 110, 86);
+        /// <summary>读取失败时标题的颜色</summary>
         private static readonly Color ErrorText = Color.FromArgb(163, 45, 45);
 
+        /// <summary>当前绑定的监视条目</summary>
         private MonitorItem _item;
+        /// <summary>当前列数：按位 16 列、按字 12 列</summary>
         private int _columns = WordColumns;
+        /// <summary>数据行数（不含表头行）</summary>
         private int _rowCount;
+        /// <summary>值格引用，按行优先排列，长度 = 行数 × 列数</summary>
         private Label[] _cells = new Label[0];
 
         /// <summary>构造：绑折叠按钮，设置标题加粗</summary>
@@ -255,6 +262,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>标题文本：地址 + 起 N 个字 / 个点。</summary>
         private string BuildTitle()
         {
             if (_item == null || _item.AddressText.Length == 0)
@@ -266,6 +274,7 @@ namespace PlcTest.View.Controls
             return string.Format("{0} 起 {1} {2}", _item.AddressText, _item.Length, unit);
         }
 
+        /// <summary>按矩阵实际需要的高度调整整个区块，折叠时只留标题栏。</summary>
         private void AdjustHeight()
         {
             if (!IsExpanded)
@@ -282,6 +291,7 @@ namespace PlcTest.View.Controls
             Height = BarHeight + body + Padding.Bottom;
         }
 
+        /// <summary>按当前条目的列数与行数重建整个矩阵。</summary>
         private void RebuildMatrix()
         {
             _matrix.SuspendLayout();
@@ -335,6 +345,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>行头文本：首行是起始地址，之后是「起始地址+偏移」。</summary>
         private string RowHeader(int rowIndex)
         {
             if (_item == null || _item.AddressText.Length == 0)
@@ -346,6 +357,7 @@ namespace PlcTest.View.Controls
             return offset == 0 ? _item.AddressText : _item.AddressText + "+" + offset;
         }
 
+        /// <summary>创建一个只读的文字格（行头 / 列头）。</summary>
         private static Label MakeCaption(string text, bool header)
         {
             return new Label
@@ -359,6 +371,7 @@ namespace PlcTest.View.Controls
             };
         }
 
+        /// <summary>创建一个值格，交替行给不同底色。</summary>
         private static Label MakeCell(bool alternate)
         {
             return new Label

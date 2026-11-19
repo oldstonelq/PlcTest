@@ -19,12 +19,19 @@ namespace PlcTest.View.Forms
     /// </summary>
     public class ConnectSettingsForm : Form
     {
+        /// <summary>通讯方式下拉（TCP / 串口）</summary>
         private readonly ComboBox _cmbCommunicationKind;
+        /// <summary>协议下拉</summary>
         private readonly ComboBox _cmbProtocol;
+        /// <summary>协议私有选项的容器</summary>
         private readonly GroupBox _gbOptions;
+        /// <summary>确定按钮</summary>
         private readonly Button _btnOk;
+        /// <summary>取消按钮</summary>
         private readonly Button _btnCancel;
+        /// <summary>地址与端口的输入提示</summary>
         private readonly ToolTip _toolTip = new ToolTip();
+        /// <summary>当前是服务端模式（影响可选的通讯方式与协议）</summary>
         private readonly bool _isServer;
 
         /// <summary>当前显示的选项编辑器，与 <see cref="ProtocolOptionCatalog"/> 返回的描述一一对应</summary>
@@ -357,6 +364,7 @@ namespace PlcTest.View.Forms
             return true;
         }
 
+        /// <summary>从协议下拉取出选中的协议。</summary>
         private bool TryGetSelectedProtocol(out ProtocolType protocol)
         {
             protocol = ProtocolType.MelsecMc3EBinary;
@@ -365,6 +373,7 @@ namespace PlcTest.View.Forms
                 && Enum.TryParse(option.Value.ToString(), out protocol);
         }
 
+        /// <summary>按枚举值在下拉里找下标，找不到返回 -1。</summary>
         private static int IndexOfValue(ComboBox combo, object value)
         {
             for (int i = 0; i < combo.Items.Count; i++)

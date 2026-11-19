@@ -53,6 +53,7 @@ namespace PlcTest.Models
     /// </summary>
     public sealed class ProtocolOption
     {
+        /// <summary>没有任何选项时返回的空集合</summary>
         private static readonly ProtocolOptionValue[] NoChoices = new ProtocolOptionValue[0];
 
         /// <summary>取值用的键，例如 CpuModel / DataFormat / Rack</summary>
@@ -336,6 +337,7 @@ namespace PlcTest.Models
             return builder.ToString();
         }
 
+        /// <summary>往 StringBuilder 里追加「键=值」，非首个前面补分隔符。</summary>
         private static void AppendPair(StringBuilder builder, string label, string value)
         {
             if (builder.Length > 0)
