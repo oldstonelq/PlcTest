@@ -244,7 +244,13 @@ namespace PlcTest.Models
         /// </summary>
         public bool ServerSerial { get; }
 
-        public ProtocolInfoAttribute(string displayName, bool clientTcp,bool clientSerial, bool serverTcp ,bool serverSerial)
+        /// <summary>构造</summary>
+        /// <param name="displayName">界面显示名</param>
+        /// <param name="clientTcp">客户端是否支持 TCP</param>
+        /// <param name="clientSerial">客户端是否支持串口</param>
+        /// <param name="serverTcp">服务端是否支持 TCP</param>
+        /// <param name="serverSerial">服务端是否支持串口</param>
+        public ProtocolInfoAttribute(string displayName, bool clientTcp, bool clientSerial, bool serverTcp, bool serverSerial)
         {
             DisplayName = displayName;
             ClientTcp = clientTcp;

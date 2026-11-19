@@ -37,6 +37,9 @@ namespace PlcTest.Server.PlcServer.Omron
         {
             return OmronFinsDeviceCatalog.All.Select(spec => spec.Area).ToList();
         }
+        /// <summary>构造</summary>
+        /// <param name="comm">服务端通讯方式</param>
+        /// <param name="protocol">FINS 协议实现</param>
         public OmronFinsServer(IServerCommunication comm, IOmronFinsServerProtocol protocol)
             : base(comm)
         {
@@ -49,6 +52,7 @@ namespace PlcTest.Server.PlcServer.Omron
 
         #region 请求处理
 
+        /// <inheritdoc/>
         protected override void HandleFrame(byte[] data, IClientSession client)
         {
             // 握手：节点地址请求，回 24 字节
@@ -215,6 +219,7 @@ namespace PlcTest.Server.PlcServer.Omron
 
         #region 软元件访问
 
+        /// <inheritdoc/>
         public override Result<bool> ReadBit(PlcAddress address)
         {
             try
@@ -231,6 +236,7 @@ namespace PlcTest.Server.PlcServer.Omron
             }
         }
 
+        /// <inheritdoc/>
         public override Result<bool[]> ReadBitArray(PlcAddress address)
         {
             try
@@ -252,6 +258,7 @@ namespace PlcTest.Server.PlcServer.Omron
             }
         }
 
+        /// <inheritdoc/>
         public override Result<bool> WriteBit(PlcAddress address, bool value)
         {
             try
@@ -266,6 +273,7 @@ namespace PlcTest.Server.PlcServer.Omron
             }
         }
 
+        /// <inheritdoc/>
         public override Result<bool> WriteBitArray(PlcAddress address, bool[] values)
         {
             try
@@ -286,6 +294,7 @@ namespace PlcTest.Server.PlcServer.Omron
             }
         }
 
+        /// <inheritdoc/>
         public override Result<short> ReadWord(PlcAddress address)
         {
             try
@@ -302,6 +311,7 @@ namespace PlcTest.Server.PlcServer.Omron
             }
         }
 
+        /// <inheritdoc/>
         public override Result<short[]> ReadWordArray(PlcAddress address)
         {
             try
@@ -323,6 +333,7 @@ namespace PlcTest.Server.PlcServer.Omron
             }
         }
 
+        /// <inheritdoc/>
         public override Result<bool> WriteWord(PlcAddress address, short value)
         {
             try
@@ -337,6 +348,7 @@ namespace PlcTest.Server.PlcServer.Omron
             }
         }
 
+        /// <inheritdoc/>
         public override Result<bool> WriteWordArray(PlcAddress address, short[] values)
         {
             try
@@ -361,6 +373,7 @@ namespace PlcTest.Server.PlcServer.Omron
 
         #region 寄存器表
 
+        /// <inheritdoc/>
         public override int GetRegisterCount(MemoryArea area)
         {
             int total = 0;
@@ -375,6 +388,7 @@ namespace PlcTest.Server.PlcServer.Omron
             return total;
         }
 
+        /// <inheritdoc/>
         public override bool ContainsRegister(MemoryArea area, int address)
         {
             foreach (var pair in _bitTables)
@@ -388,6 +402,7 @@ namespace PlcTest.Server.PlcServer.Omron
             return false;
         }
 
+        /// <inheritdoc/>
         public override bool TryAddRegister(MemoryArea area, int address)
         {
             if (address < 0) return false;
@@ -399,6 +414,7 @@ namespace PlcTest.Server.PlcServer.Omron
             return addedBit || addedWord;
         }
 
+        /// <inheritdoc/>
         public override void RemoveAllRegisters(MemoryArea area)
         {
             foreach (var pair in _bitTables)
@@ -411,6 +427,7 @@ namespace PlcTest.Server.PlcServer.Omron
             }
         }
 
+        /// <inheritdoc/>
         public override void ResetRegisterValues(MemoryArea area, int start, int length)
         {
             if (length <= 0) return;

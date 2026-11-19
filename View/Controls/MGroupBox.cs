@@ -11,10 +11,15 @@ using System.Windows.Forms;
 
 namespace PlcTest.View.Controls
 {
+    /// <summary>
+    /// 可自定边框颜色的分组框。GroupBox 的边框颜色由系统主题决定、
+    /// 没有公开属性可改，所以这里在 OnPaint 里整块自绘。
+    /// </summary>
     public partial class MGroupBox : GroupBox
     {
         private Color _borderColor = Color.Black;
 
+        /// <summary>边框颜色，赋值后立即重绘。</summary>
         [Browsable(true), Description("边框颜色"), Category("自定义分组")]
         public Color BorderColor
         {
@@ -26,6 +31,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>构造</summary>
         public MGroupBox()
         {
             //SetStyle中的AllPaintingInWmPaint可以减少控件重绘次数,不会导致控件闪烁
@@ -37,6 +43,8 @@ namespace PlcTest.View.Controls
             InitializeComponent();
         }
 
+        /// <summary>构造，并把自身注册到设计器容器里</summary>
+        /// <param name="container">组件容器，设计器传入</param>
         public MGroupBox(IContainer container)
         {
             //SetStyle中的AllPaintingInWmPaint可以减少控件重绘次数,不会导致控件闪烁
@@ -50,6 +58,7 @@ namespace PlcTest.View.Controls
             InitializeComponent();
         }
 
+        /// <inheritdoc/>
         protected override void OnPaint(PaintEventArgs e)
         {
             // 1. 无需调用 base.OnPaint，完全自己画

@@ -23,6 +23,7 @@ namespace PlcTest.Server.ServerProtocolManagement.Omron
         public const int ResponseHeaderLength = OuterHeaderLength + FinsHeaderLength + 2 + 2;
         /// <summary>握手请求 / 响应长度</summary>
         public const int HandshakeRequestLength = 20;
+        /// <summary>握手响应长度</summary>
         public const int HandshakeResponseLength = 24;
 
         private const uint CmdNodeAddressRequest = 0x00000000;

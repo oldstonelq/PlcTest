@@ -19,6 +19,9 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace PlcTest.View.Forms
 {
+    /// <summary>
+    /// 主窗体：选协议与通讯方式，连上之后打开客户端 / 服务端工作台。
+    /// </summary>
     public partial class MainForm : Form
     {
         /// <summary>

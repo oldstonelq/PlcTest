@@ -38,6 +38,10 @@ namespace PlcTest.Server.PlcServer.Inovance
                 .Select(spec => spec.Area)
                 .ToList();
         }
+        /// <summary>构造</summary>
+        /// <param name="comm">服务端通讯方式</param>
+        /// <param name="protocol">Modbus 协议实现</param>
+        /// <param name="cpuModel">汇川机型，决定软元件范围，默认 H3U</param>
         public InovancePlcServer(IServerCommunication comm, IModbusServerProtocol protocol, InovanceCpuModel cpuModel = InovanceCpuModel.H3U)
             : base(comm)
         {
@@ -50,6 +54,7 @@ namespace PlcTest.Server.PlcServer.Inovance
 
         #region 请求处理
 
+        /// <inheritdoc/>
         protected override void HandleFrame(byte[] data, IClientSession client)
         {
             ModbusRequestInfo request = _protocol.ParseRequest(data);
@@ -211,6 +216,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             }
         }
 
+        /// <inheritdoc/>
         public override Result<bool> ReadBit(PlcAddress address)
         {
             int modbusAddress;
@@ -224,6 +230,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             lock (_memoryLock) { return Result<bool>.Success(_coils[modbusAddress]); }
         }
 
+        /// <inheritdoc/>
         public override Result<bool[]> ReadBitArray(PlcAddress address)
         {
             int modbusAddress;
@@ -246,6 +253,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             }
         }
 
+        /// <inheritdoc/>
         public override Result<bool> WriteBit(PlcAddress address, bool value)
         {
             int modbusAddress;
@@ -260,6 +268,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             return Result<bool>.Success(true);
         }
 
+        /// <inheritdoc/>
         public override Result<bool> WriteBitArray(PlcAddress address, bool[] values)
         {
             int modbusAddress;
@@ -278,6 +287,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             return Result<bool>.Success(true);
         }
 
+        /// <inheritdoc/>
         public override Result<short> ReadWord(PlcAddress address)
         {
             int modbusAddress;
@@ -291,6 +301,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             lock (_memoryLock) { return Result<short>.Success(_registers[modbusAddress]); }
         }
 
+        /// <inheritdoc/>
         public override Result<short[]> ReadWordArray(PlcAddress address)
         {
             int modbusAddress;
@@ -313,6 +324,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             }
         }
 
+        /// <inheritdoc/>
         public override Result<bool> WriteWord(PlcAddress address, short value)
         {
             int modbusAddress;
@@ -327,6 +339,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             return Result<bool>.Success(true);
         }
 
+        /// <inheritdoc/>
         public override Result<bool> WriteWordArray(PlcAddress address, short[] values)
         {
             int modbusAddress;
@@ -361,18 +374,21 @@ namespace PlcTest.Server.PlcServer.Inovance
             return spec.GetMaxIndex(CpuModel);
         }
 
+        /// <inheritdoc/>
         public override int GetRegisterCount(MemoryArea area)
         {
             int maxIndex = GetMaxIndex(area);
             return maxIndex >= 0 ? maxIndex + 1 : 0;
         }
 
+        /// <inheritdoc/>
         public override bool ContainsRegister(MemoryArea area, int address)
         {
             int maxIndex = GetMaxIndex(area);
             return maxIndex >= 0 && address >= 0 && address <= maxIndex;
         }
 
+        /// <inheritdoc/>
         public override bool TryAddRegister(MemoryArea area, int address)
         {
             return ContainsRegister(area, address);
@@ -388,6 +404,7 @@ namespace PlcTest.Server.PlcServer.Inovance
             ResetAllRegisterValues(area);
         }
 
+        /// <inheritdoc/>
         public override void ResetRegisterValues(MemoryArea area, int start, int length)
         {
             if (length <= 0) return;

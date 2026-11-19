@@ -27,12 +27,16 @@ namespace PlcTest.Models
         /// <summary>界面显示文本</summary>
         public string Text { get; private set; }
 
+        /// <summary>构造</summary>
+        /// <param name="value">实际值（枚举实例）</param>
+        /// <param name="text">显示文本，为空时退回值的字符串形式</param>
         public ProtocolOptionValue(object value, string text)
         {
             Value = value;
             Text = string.IsNullOrEmpty(text) ? Convert.ToString(value) : text;
         }
 
+        /// <summary>调试用：显示文本。</summary>
         public override string ToString()
         {
             return Text;
@@ -341,6 +345,7 @@ namespace PlcTest.Models
             builder.Append(label).Append('=').Append(value);
         }
 
+        /// <summary>调试用：等价于 <see cref="Describe"/> 传 null。</summary>
         public override string ToString()
         {
             return Describe(null);

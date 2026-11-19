@@ -11,12 +11,16 @@ using System.Threading.Tasks;
 
 namespace PlcTest.Server.ServerCommunication
 {
+    /// <summary>
+    /// TCP 服务端通讯：监听端口、接受客户端连接，按连接分发收发。
+    /// </summary>
     public class TcpServerCommunication : IServerCommunication
     {
         /// <summary>
         /// IP地址和Port口
         /// </summary>
         private IPEndPoint _ipAndPoint;
+        /// <summary>监听地址与端口。</summary>
         public IPEndPoint IpAndPoint
         {
             get { return _ipAndPoint; }
@@ -26,6 +30,7 @@ namespace PlcTest.Server.ServerCommunication
         /// 负责监听的Socket对象
         /// </summary>
         private Socket _listenSocket;
+        /// <summary>负责监听的 Socket。</summary>
         public Socket ListenSocket
         {
             get { return _listenSocket; }
