@@ -47,12 +47,12 @@ namespace PlcTest.Client.ClientCommunication
 
         #region 构造函数
         /// <summary>构造</summary>
-        /// <param name="IP">远端地址</param>
-        /// <param name="Port">远端端口</param>
-        public TcpClientCommunication(string IP, int Port)
+        /// <param name="ip">远端地址</param>
+        /// <param name="port">远端端口</param>
+        public TcpClientCommunication(string ip, int port)
         { 
-            this.IpAddress= IP;
-            this.Port =Port ;
+            this.IpAddress = ip;
+            this.Port = port;
         }
         #endregion
 
