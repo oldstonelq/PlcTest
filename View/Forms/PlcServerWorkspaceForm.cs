@@ -99,7 +99,11 @@ namespace PlcTest.View.Forms
             _monitor.RowActivated += OnRowActivated;
 
             // 切到详情页时才重建：平时不必为看不见的控件维护布局
-            _pageDetail.Enter += (s, e) => _detail.Rebuild(_monitor.Items);
+            _pageDetail.Enter += (s, e) => BeginInvoke((Action)(() =>
+            {
+                // 等这一轮布局结束再重建：Enter 触发时 _flow 的 ClientSize 可能还是旧值
+                _detail.Rebuild(_monitor.Items);
+            }));
 
             _detail.Rebuild(_monitor.Items);
 
@@ -329,9 +333,15 @@ namespace PlcTest.View.Forms
         /// <param name="index">条目序号</param>
         private void OnRowActivated(int index)
         {
-            _detail.Rebuild(_monitor.Items);
             _tabs.SelectedTab = _pageDetail;
-            _detail.FocusRegion(index);
+
+            // 切页之后再排一帧：这时候 TabPage 才有真实尺寸，
+            // Rebuild 才能算出正确的块宽，ScrollControlIntoView 也才滚得动。
+            BeginInvoke((Action)(() =>
+            {
+                _detail.Rebuild(_monitor.Items);
+                _detail.FocusRegion(index);
+            }));
         }
 
         private MonitorReadResult ReadForMonitor(PlcAddress address)

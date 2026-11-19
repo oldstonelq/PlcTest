@@ -81,6 +81,9 @@ namespace PlcTest.View.Controls
 
             if (IsSameAsCurrent(next))
             {
+                // 结构没变也要跟着容器调一次宽：
+                // 页签刚切过来时 _flow 可能还没布局完，那时算出的宽度是错的。
+                ResizeBlocks();
                 return;
             }
 
@@ -204,6 +207,13 @@ namespace PlcTest.View.Controls
 
         private void ResizeBlocks()
         {
+            // 容器还没布局出尺寸时不要硬算：否则会按 200 的下限把块压扁，
+            // 12 列每列只剩十几像素，数字全被裁掉，而 SizeChanged 之后未必再来一次。
+            if (_flow.ClientSize.Width <= 0)
+            {
+                return;
+            }
+
             int width = _flow.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 8;
             if (width < 200)
             {

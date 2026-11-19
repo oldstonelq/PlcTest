@@ -205,8 +205,18 @@ namespace PlcTest.View.Controls
 
         private void AdjustHeight()
         {
-            int bodyHeight = IsExpanded ? (BarHeight + (_rowCount + 1) * CellHeight + 4) : BarHeight;
-            Height = bodyHeight + Padding.Bottom;
+            if (!IsExpanded)
+            {
+                Height = BarHeight + Padding.Bottom;
+                return;
+            }
+
+            // 问控件本身要多高，而不是自己乘行数：
+            // CellBorderStyle 的边框也要占位置，手算差几个像素就会把最后一行裁掉。
+            int width = Width > 0 ? Width : 600;
+            Size preferred = _matrix.GetPreferredSize(new Size(width, 0));
+            int body = preferred.Height > 0 ? preferred.Height : (_rowCount + 1) * CellHeight;
+            Height = BarHeight + body + Padding.Bottom;
         }
 
         private void RebuildMatrix()
