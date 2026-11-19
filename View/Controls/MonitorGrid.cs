@@ -77,6 +77,12 @@ namespace PlcTest.View.Controls
             get { return _timer.Enabled; }
         }
 
+        /// <summary>表格当前是否只读（自动刷新期间为 true）</summary>
+        public bool IsGridReadOnly
+        {
+            get { return _grid.ReadOnly; }
+        }
+
         /// <summary>
         /// 构造：控件树（工具栏、表格、五个列、轮询定时器）都在 Designer 里，
         /// 这里只绑事件与默认值。
@@ -239,6 +245,8 @@ namespace PlcTest.View.Controls
             _timer.Enabled = running;
             _btnPause.Text = running ? "暂停" : "开始";
 
+            UpdateButtonState();
+
             Action<bool> handler = AutoRefreshChanged;
             if (handler != null)
             {
@@ -253,11 +261,18 @@ namespace PlcTest.View.Controls
         private void UpdateButtonState()
         {
             bool hasRows = _grid.Rows.Count > 0;
-            _btnRemove.Enabled = hasRows;
+            bool running = _timer.Enabled;
+
+            // 防呆：开始刷新后监视集合就不该再变——表格转只读，加/删按钮置灰。
+            // 只读不影响选中与双击，跳详情页的路径仍然通。
+            // 边刷边改会让表格行与详情页区块错位，读到的是「改之前那一行」的值。
+            _grid.ReadOnly = running;
+            _btnAdd.Enabled = !running;
+            _btnRemove.Enabled = hasRows && !running;
             _btnRefresh.Enabled = hasRows;
             _btnPause.Enabled = hasRows;
 
-            if (!hasRows)
+            if (!hasRows && running)
             {
                 SetAutoRefresh(false);
             }
