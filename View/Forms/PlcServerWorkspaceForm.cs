@@ -79,6 +79,9 @@ namespace PlcTest.View.Forms
                 throw new ArgumentNullException("server");
             }
 
+            // 设计尺寸按 1280×820 画；小屏装不下时等比缩小（固定尺寸窗体不会自己适应）
+            ClientSize = ScreenFit.Fit(ClientSize);
+
             _server = server;
             _registerTable = server as IRegisterTable;
             _capability = ProtocolCapability.FromServer(server, protocol);
@@ -92,6 +95,13 @@ namespace PlcTest.View.Forms
             _addressPanel.Capability = _capability;
             _monitor.Capability = _capability;
             _monitor.Reader = ReadForMonitor;
+            _monitor.RowUpdated += _detail.Apply;
+            _monitor.RowActivated += OnRowActivated;
+
+            // 切到详情页时才重建：平时不必为看不见的控件维护布局
+            _pageDetail.Enter += (s, e) => _detail.Rebuild(_monitor.Items);
+
+            _detail.Rebuild(_monitor.Items);
 
             // 没有模拟寄存器表的服务端，把提示文案换成说明而不是让人点了才弹窗
             if (_registerTable == null)
@@ -311,6 +321,18 @@ namespace PlcTest.View.Forms
         #endregion
 
         #region 读取 / 写入
+
+        /// <summary>
+        /// 双击监视表的某行：重建详情页并定位过去。
+        /// 先重建再切页——<c>ScrollControlIntoView</c> 对不可见的控件不起作用。
+        /// </summary>
+        /// <param name="index">条目序号</param>
+        private void OnRowActivated(int index)
+        {
+            _detail.Rebuild(_monitor.Items);
+            _tabs.SelectedTab = _pageDetail;
+            _detail.FocusRegion(index);
+        }
 
         private MonitorReadResult ReadForMonitor(PlcAddress address)
         {

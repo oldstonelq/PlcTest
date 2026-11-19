@@ -161,11 +161,23 @@
     <Compile Include="View\Controls\MGroupBox.Designer.cs">
       <DependentUpon>MGroupBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\Controls\MonitorDetailView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\Controls\MonitorDetailView.Designer.cs">
+      <DependentUpon>MonitorDetailView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\Controls\MonitorGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="View\Controls\MonitorGrid.Designer.cs">
       <DependentUpon>MonitorGrid.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\Controls\MonitorRegionBlock.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\Controls\MonitorRegionBlock.Designer.cs">
+      <DependentUpon>MonitorRegionBlock.cs</DependentUpon>
     </Compile>
     <Compile Include="View\Forms\ConnectSettingsForm.cs">
       <SubType>Form</SubType>
@@ -189,8 +201,10 @@
       <DependentUpon>PlcWorkspaceForm.cs</DependentUpon>
     </Compile>
     <Compile Include="View\Support\AddressTextParser.cs" />
+    <Compile Include="View\Support\MonitorItem.cs" />
     <Compile Include="View\Support\MonitorReadResult.cs" />
     <Compile Include="View\Support\ProtocolCapability.cs" />
+    <Compile Include="View\Support\ScreenFit.cs" />
     <Compile Include="Tool\DataFormatConverter.cs" />
     <Compile Include="Tool\OtherTool.cs" />
     <Compile Include="Tool\ProtocolOptionValues.cs" />

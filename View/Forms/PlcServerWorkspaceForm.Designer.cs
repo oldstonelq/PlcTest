@@ -43,6 +43,8 @@ namespace PlcTest.View.Forms
             this._tabs = new System.Windows.Forms.TabControl();
             this._pageRegisters = new System.Windows.Forms.TabPage();
             this._registerLayout = new System.Windows.Forms.TableLayoutPanel();
+            this._pageDetail = new System.Windows.Forms.TabPage();
+            this._detail = new PlcTest.View.Controls.MonitorDetailView();
             this._pageSingle = new System.Windows.Forms.TabPage();
             this._singleLayout = new System.Windows.Forms.TableLayoutPanel();
             this._readBar = new System.Windows.Forms.FlowLayoutPanel();
@@ -71,6 +73,7 @@ namespace PlcTest.View.Forms
             this._leftHost.SuspendLayout();
             this._tabs.SuspendLayout();
             this._pageRegisters.SuspendLayout();
+            this._pageDetail.SuspendLayout();
             this._registerLayout.SuspendLayout();
             this._pageSingle.SuspendLayout();
             this._singleLayout.SuspendLayout();
@@ -94,7 +97,7 @@ namespace PlcTest.View.Forms
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 170F));
+            this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 220F));
             this._root.Size = new System.Drawing.Size(1020, 660);
             this._root.TabIndex = 0;
             // 
@@ -177,6 +180,7 @@ namespace PlcTest.View.Forms
             // _tabs
             // 
             this._tabs.Controls.Add(this._pageRegisters);
+            this._tabs.Controls.Add(this._pageDetail);
             this._tabs.Controls.Add(this._pageSingle);
             this._tabs.Dock = System.Windows.Forms.DockStyle.Fill;
             this._tabs.Location = new System.Drawing.Point(0, 0);
@@ -219,7 +223,7 @@ namespace PlcTest.View.Forms
             this._pageSingle.Name = "_pageSingle";
             this._pageSingle.Padding = new System.Windows.Forms.Padding(3);
             this._pageSingle.Size = new System.Drawing.Size(812, 392);
-            this._pageSingle.TabIndex = 1;
+            this._pageSingle.TabIndex = 2;
             this._pageSingle.Text = "单次读写";
             this._pageSingle.UseVisualStyleBackColor = true;
             // 
@@ -420,6 +424,25 @@ namespace PlcTest.View.Forms
             this._registerBar.TabIndex = 0;
             this._registerBar.WrapContents = false;
             // 
+            // _pageDetail
+            // 
+            this._pageDetail.Controls.Add(this._detail);
+            this._pageDetail.Location = new System.Drawing.Point(4, 22);
+            this._pageDetail.Name = "_pageDetail";
+            this._pageDetail.Padding = new System.Windows.Forms.Padding(3);
+            this._pageDetail.Size = new System.Drawing.Size(812, 432);
+            this._pageDetail.TabIndex = 1;
+            this._pageDetail.Text = "详情";
+            this._pageDetail.UseVisualStyleBackColor = true;
+            // 
+            // _detail
+            // 
+            this._detail.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._detail.Location = new System.Drawing.Point(3, 3);
+            this._detail.Name = "_detail";
+            this._detail.Size = new System.Drawing.Size(806, 426);
+            this._detail.TabIndex = 0;
+            // 
             // _monitor
             // 
             this._monitor.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -433,7 +456,7 @@ namespace PlcTest.View.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1020, 660);
+            this.ClientSize = new System.Drawing.Size(1280, 820);
             this.Controls.Add(this._root);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -450,6 +473,7 @@ namespace PlcTest.View.Forms
             this._leftHost.ResumeLayout(false);
             this._tabs.ResumeLayout(false);
             this._pageRegisters.ResumeLayout(false);
+            this._pageDetail.ResumeLayout(false);
             this._registerLayout.ResumeLayout(false);
             this._pageSingle.ResumeLayout(false);
             this._singleLayout.ResumeLayout(false);
@@ -473,6 +497,8 @@ namespace PlcTest.View.Forms
         private System.Windows.Forms.TabControl _tabs;
         private System.Windows.Forms.TabPage _pageRegisters;
         private System.Windows.Forms.TableLayoutPanel _registerLayout;
+        private System.Windows.Forms.TabPage _pageDetail;
+        private MonitorDetailView _detail;
         private System.Windows.Forms.TabPage _pageSingle;
         private System.Windows.Forms.TableLayoutPanel _singleLayout;
         private System.Windows.Forms.FlowLayoutPanel _readBar;

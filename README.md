@@ -425,67 +425,6 @@ dotnet run -c Release --no-build
 
 > 汇川 T256–T511 只支持触点不是缺陷：手册 9.4.3 与 9.7 两处口径一致，寄存器编址只到 `T0~T255`。`TN` 上限 255、`TS` 上限 511 与手册一致。
 
-### 计划：监视详情页 + 窗体放大（2026-11-13 立项，未开工）
-
-**问题**：监视表一行一个地址，值列固定 260px，`Describe()` 里硬编码「最多显示 16 个」，超出只拼一个 `…`——既不告诉你后面还有多少，也不知道被截掉了几个。联调时同时挂 `D100` 起 50 个字、`D200` 起 50 个字，这一列既显示不下，也失去「这是一组」的分组感。
-
-**方案**：不做悬挂式详情面板（`SplitContainer` 会挤压表格高度，还要在「占多少」上反复权衡），改为**新增独立页签**：页签内按区域分块，每块是「行头 = 起始地址、列头 = 偏移 0..N、格子里只有值」的矩阵。字视图 12 列、位视图 16 列（16 正好对应一个字的 16 位）。双击监视表的某行跳转并滚动定位，**详情页始终显示全部区域**（不是过滤），另给「仅显示选中区域」勾选。
-
-#### 阶段 1 · 数据接缝（不动 UI）
-
-- [ ] `View/Support/MonitorItem.cs` 新增只读值类型：`AddressText` / `Kind` / `Length`，让详情页不解析单元格就知道这块是什么
-- [ ] `MonitorGrid` 内部维护 `List<MonitorItem> _items`，与行一一对应（`AddRow` 加、`RemoveSelectedRows` 删），暴露 `IReadOnlyList<MonitorItem> Items`
-- [ ] `MonitorGrid` 新增 `event Action<int, MonitorReadResult> RowUpdated`，在 `ApplyOne` 之后抛
-- [ ] `MonitorGrid` 新增 `event Action<int> RowActivated`，由 `CellDoubleClick` 触发（排除表头行）
-
-> 详情页**不自己发请求**，只订阅 `RowUpdated`——否则通讯量翻倍。这是整个设计成立的前提。
-
-#### 阶段 2 · 详情控件
-
-- [ ] `View/Controls/MonitorRegionBlock.cs` 新增：一个区域一块，含标题行（`D100 起 50 个字` + 折叠）与矩阵。矩阵用 `TableLayoutPanel` 而不是 `DataGridView`——「行头 + 列头构成二维地址」用表格控件反而别扭
-- [ ] `MonitorRegionBlock.Apply(MonitorReadResult)` 只改变化的格子 `Text`，全程 `SuspendLayout` / `ResumeLayout`
-- [ ] `View/Controls/MonitorDetailView.cs` 新增：内部 `FlowLayoutPanel`（`TopDown`、`WrapContents = false`、`AutoScroll`），提供 `Rebuild(IReadOnlyList<MonitorItem>)` / `Apply(int, MonitorReadResult)` / `FocusRegion(int)`
-
-> 注意：VS 要求文件里**第一个顶层类**可设计。`MonitorRegionBlock` 必须单独成文件（或作为嵌套类），否则重演当年 `MonitorReadResult` 报的「可以进行设计，但不是文件中的第一个类」。
-
-#### 阶段 3 · 窗体接入
-
-两个工作台结构对称（都有 `_tabs`），改法一致：
-
-- [ ] 新增 `TabPage _pageDetail`，标题「详情」，插在「监视」/「寄存器」之后、「单次读写」之前
-- [ ] 接线：`RowUpdated += _detail.Apply`；`RowActivated += index => { _tabs.SelectedTab = _pageDetail; _detail.FocusRegion(index); }`
-- [ ] 行增删后调 `_detail.Rebuild(_monitor.Items)`
-- [ ] 详情页顶部加「仅显示选中区域」勾选（默认关）
-
-#### 阶段 4 · 值列摘要
-
-- [ ] `MonitorGrid.Describe()` 改格式：位用紧凑 `111`、字保持 `10, 20`，末尾补真实总数 `(50)`，替换现在的含糊 `…`
-- [ ] 注意：会打断 2 条测试——`Program.cs:3044` 断言 `"1 1 1"`、`3047` 断言 `"10, 20"`，必须同步改
-
-#### 阶段 5 · 尺寸
-
-- [ ] 两个窗体 `ClientSize`：`1020×660` → **`1280×820`**（`FixedSingle` 与「不可拖拽」保持不变）
-- [ ] `View/Support/ScreenFit.cs` 新增 `Size Fit(Size preferred)`：屏幕工作区装不下时等比缩到 85%（1366×768 笔记本上 820 高会顶出屏幕）
-- [ ] 连带调整：`_root` 报文日志行 `170 → 220`；`MonitorGrid` 值列 `260 → 340`
-- [ ] 两个窗体同批改，否则切换时窗口大小跳变
-
-#### 阶段 6 · 测试
-
-- [ ] 设计器可见性：`MonitorDetailView` / `MonitorRegionBlock` 无参构造 + 控件树遍历（照 `TestMonitorGridDesignerSurface`）
-- [ ] 详情数据流：加 `D100×50` / `D200×50` → `PollOnce` → 断言区块数、格子数与首末值
-- [ ] 导航：触发 `RowActivated` → 断言 `_tabs.SelectedTab` 切到详情页
-- [ ] 600 项全量回归
-
-#### 要提前想到的坑
-
-1. **行头宽度不够**：S7 的 `DB1.DBW0` 比 `D100` 长一倍，行头不能写死 54px，按当前协议最长地址算，或对 DB 区简写成 `DB1.W0`
-2. **不可见时要不要更新**：详情页在别的页签时控件不可见。建议只缓存最后结果、切到该页再统一应用，避免后台白刷上百个 Label
-3. **最后一行不满**：`D148` 起 2 个值，末行只填 2 格，空格要留空——填 0 会让人以为读到 0
-
-#### 明确不动的东西
-
-轮询调度、`Reader` 委托、协议层、分段逻辑、服务端读写全部保持原样。本次只加「显示层 + 两个事件」，`MonitorGrid` 的读取路径一行不改。
-
 ### 暂缓：西门子 S7 三项（2026-11-10 明确不做）
 
 > 三条都是「知道该怎么做、也知道代价」，本轮决定不做。写在这里是为了下次不重复评估，也避免有人以为已经支持了。
@@ -516,6 +455,12 @@ dotnet run -c Release --no-build
 
 ### 已完成（2026-11 归档）
 
+- [x] **监视详情页 + 工作台放大**：新增「详情」页签，把每个监视条目展开成
+  「行头 = 起始地址、列头 = 偏移、格子 = 值」的矩阵（字 12 列、位 16 列），
+  双击监视表的行跳转并定位，详情页始终显示全部区域、另可勾「仅显示选中区域」。
+  详情页不自己发请求，只订阅 `MonitorGrid.RowUpdated`，通讯量不翻倍。
+  同时把值列摘要改成紧凑格式并补真实总数（`111 … (50)`，原来只给一个省略号），
+  工作台尺寸 `1020×660` → `1280×820`，小屏按 `ScreenFit` 等比缩到 85%。
 - [x] **命名规范统一（4 批）**：① `S7PlcServer` 项级参数 `request`→`item`、3 个返回 bool 的 `ParseXxx` 改 `TryParseXxx`；② 去掉 `mData`/`mReStr`/`mbyte`/`mPen`/`mLength` 等匈牙利前缀（6 个三菱协议 + `CommunicationPlcClient` + `MGroupBox`），三菱协议里 `Data`/`Command`/`Address`/`Length`/`RealData` 等大写局部变量改语义化驼峰（`frame`/`packet`/`addressText`/`lengthText`/`values`），`CommunicationPlcClient` 里与协议方法同名的局部 `BuildReadData`/`BuildCompletePack` 改 `commandBody`/`requestFrame`；③ 事件去 `Event` 后缀与 `On` 前缀（`ShowCommMessageEvent`→`MessageLogged`、`FrameEvent`→`FrameLogged`、`OnDataReceived`→`DataReceived`）；④ `ClearRegisters`→`RemoveAllRegisters`，并修掉 `Client/PLCClientBuilder.cs`、`Models/PLCAddress.cs`、`InovanceModbusTCPClientProtocol.cs` 三处文件名大小写，以及 `Client/PLCClient` 目录（`csproj` 与 git 索引原本混用两种大小写）
 
 - [x] **西门子 S7 服务端（从站）**：新增 `IS7ServerProtocol` / `S7RequestInfo` / `SiemensS71200ServerProtocol` / `S7PlcServer`，I/Q/M/DB 四区、位字共享字节内存、多变量、DB 按块惰性分配。`serverTcp` 已打开，界面两端都可选

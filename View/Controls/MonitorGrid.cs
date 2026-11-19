@@ -38,6 +38,17 @@ namespace PlcTest.View.Controls
         /// <summary>建议地址对应的位/字方式</summary>
         private AddressValueKind _suggestedKind = AddressValueKind.Bit;
 
+        /// <summary>
+        /// 某一行读完后触发，参数是行号与结果。
+        /// 详情页靠它拿数据——它自己不发起读取，否则同一批地址要读两遍。
+        /// </summary>
+        public event Action<int, MonitorReadResult> RowUpdated;
+
+        /// <summary>
+        /// 双击某一行（表头不算）。宿主据此切到详情页并定位到对应区块。
+        /// </summary>
+        public event Action<int> RowActivated;
+
         /// <summary>地址解析与读取的实现，由宿主窗体提供（客户端或服务端）</summary>
         public Func<PlcAddress, MonitorReadResult> Reader { get; set; }
 
@@ -82,6 +93,20 @@ namespace PlcTest.View.Controls
                 if (e.RowIndex >= 0 && e.ColumnIndex != ColValue && e.ColumnIndex != ColStatus)
                 {
                     ValidateRow(e.RowIndex);
+                }
+            };
+
+            _grid.CellDoubleClick += (s, e) =>
+            {
+                if (e.RowIndex < 0)
+                {
+                    return;
+                }
+
+                Action<int> handler = RowActivated;
+                if (handler != null)
+                {
+                    handler(e.RowIndex);
                 }
             };
 
@@ -134,6 +159,24 @@ namespace PlcTest.View.Controls
         public int RowCount
         {
             get { return _grid.Rows.Count; }
+        }
+
+        /// <summary>
+        /// 当前所有监视条目，按表格行序。
+        /// 每次访问从单元格现读，不单独缓存：地址/方式/长度随时可改，
+        /// 缓存一份就要同时处理行增删、单元格编辑、Delete 键删行三条同步路径，不值当。
+        /// </summary>
+        public IReadOnlyList<MonitorItem> Items
+        {
+            get
+            {
+                var items = new List<MonitorItem>(_grid.Rows.Count);
+                for (int i = 0; i < _grid.Rows.Count; i++)
+                {
+                    items.Add(ReadItem(i));
+                }
+                return items;
+            }
         }
 
         /// <summary>读某一行的单元格文本（测试与宿主用）</summary>
@@ -266,6 +309,28 @@ namespace PlcTest.View.Controls
         }
 
         /// <summary>
+        /// 读出一行的条目信息。不校验地址是否合法——非法时
+        /// <see cref="MonitorItem.Address"/> 为 null，详情页照样给它留一块并显示原因。
+        /// </summary>
+        private MonitorItem ReadItem(int rowIndex)
+        {
+            DataGridViewRow row = _grid.Rows[rowIndex];
+            string text = Convert.ToString(row.Cells[ColAddress].Value);
+            AddressValueKind kind = Convert.ToString(row.Cells[ColKind].Value) == "字"
+                ? AddressValueKind.Word
+                : AddressValueKind.Bit;
+
+            int length;
+            if (!int.TryParse(Convert.ToString(row.Cells[ColLength].Value), out length) || length < 1)
+            {
+                length = 1;
+            }
+
+            Result<PlcAddress> parsed = AddressTextParser.Parse(text, Capability, kind);
+            return new MonitorItem(text, kind, length, parsed.IsSuccess ? parsed.Data : null);
+        }
+
+        /// <summary>
         /// 把一行的文本解析成地址；解析失败返回 false 并带出原因。
         /// <paramref name="error"/> 为 null 表示这一行是空的（不算错，跳过）。
         /// </summary>
@@ -316,21 +381,29 @@ namespace PlcTest.View.Controls
             if (result == null)
             {
                 SetStatus(rowIndex, "无结果", true);
-                return;
             }
-
-            if (!result.Success)
+            else if (!result.Success)
             {
                 SetStatus(rowIndex, result.Error, true);
-                return;
+            }
+            else
+            {
+                _grid.Rows[rowIndex].Cells[ColValue].Value = Describe(result);
+                SetStatus(rowIndex, "OK", false);
             }
 
-            _grid.Rows[rowIndex].Cells[ColValue].Value = Describe(result);
-            SetStatus(rowIndex, "OK", false);
+            // 详情页订阅这里。result 可能为 null（无结果），由订阅方决定怎么显示。
+            Action<int, MonitorReadResult> handler = RowUpdated;
+            if (handler != null)
+            {
+                handler(rowIndex, result);
+            }
         }
 
         /// <summary>
-        /// 值的显示：位用 0/1 串、字用十进制；超出 16 个只显示前 16 个，避免撑爆列宽。
+        /// 值的显示：位用紧凑的 0/1 串（不加空格，同样宽度能多放一倍）、字用十进制。
+        /// 超过 16 个只显示前 16 个，但末尾必须带上真实总数——
+        /// 只写一个省略号的话，长度 20 和长度 16 看起来一模一样。
         /// </summary>
         private static string Describe(MonitorReadResult result)
         {
@@ -339,13 +412,15 @@ namespace PlcTest.View.Controls
             if (result.Bits != null)
             {
                 int count = Math.Min(result.Bits.Length, limit);
-                var parts = new List<string>(count);
+                var chars = new char[count];
                 for (int i = 0; i < count; i++)
                 {
-                    parts.Add(result.Bits[i] ? "1" : "0");
+                    chars[i] = result.Bits[i] ? '1' : '0';
                 }
-                string text = string.Join(" ", parts);
-                return result.Bits.Length > limit ? text + " …" : text;
+                string text = new string(chars);
+                return result.Bits.Length > limit
+                    ? text + " … (" + result.Bits.Length + ")"
+                    : text;
             }
 
             if (result.Words != null)
@@ -357,7 +432,9 @@ namespace PlcTest.View.Controls
                     parts.Add(result.Words[i].ToString());
                 }
                 string text = string.Join(", ", parts);
-                return result.Words.Length > limit ? text + " …" : text;
+                return result.Words.Length > limit
+                    ? text + " … (" + result.Words.Length + ")"
+                    : text;
             }
 
             return string.Empty;
