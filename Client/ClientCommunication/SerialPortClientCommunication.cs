@@ -65,6 +65,7 @@ namespace PlcTest.Client.ClientCommunication
             StopBits = stopBits;
         }
         #region 连接状态
+        /// <inheritdoc/>
         public bool IsConnected
         {
             get

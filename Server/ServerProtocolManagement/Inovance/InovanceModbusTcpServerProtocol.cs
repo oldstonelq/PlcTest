@@ -173,6 +173,7 @@ namespace PlcTest.Server.ServerProtocolManagement.Inovance
             return frame;
         }
 
+        /// <summary>按大端读一个 16 位无符号整数。</summary>
         private static ushort ReadUInt16(byte[] data, int offset)
         {
             return (ushort)((data[offset] << 8) | data[offset + 1]);

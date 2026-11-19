@@ -16,6 +16,7 @@ namespace PlcTest.Server.PlcServer
     /// </summary>
     public abstract class PlcServerBase : IPlcServer, IRegisterTable
     {
+        /// <summary>服务端通讯实现</summary>
         private readonly IServerCommunication _comm;
 
         /// <summary>

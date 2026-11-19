@@ -90,7 +90,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// 写入字数据转Byte数组
         /// </summary>
         /// <param name="shorts">字数据</param>
-        /// <returns打包后的字节数组></returns>
+        /// <returns>打包后的字节数组</returns>
         public byte[] GetWriteWordData(short[] shorts)
         {
             byte[] buffer = new byte[shorts.Length * 2];
@@ -101,11 +101,6 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             }
             return buffer;
         }
-        /// <summary>
-        /// 创建读取数据包
-        /// </summary>
-        /// <param name="address">PLC地址模型</param>
-        /// <returns>读取命令报文</returns>
         /// <summary>
         /// 目标网络号（0–255）。直连本机 CPU 时为 0；经 MELSECNET / CC-Link 路由时才需要改。
         /// 写进请求帧头的网络号字节。
@@ -127,6 +122,11 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
             StationNumber = ProtocolOptionValues.ClampInt(options, "StationNumber", StationNumber, 0, 255);
         }
 
+        /// <summary>
+        /// 创建读取数据包
+        /// </summary>
+        /// <param name="address">PLC地址模型</param>
+        /// <returns>读取命令报文</returns>
         public byte[] BuildReadData(PlcAddress address)
         {
             int memory = GetMemoryCode(address.Area);
@@ -247,7 +247,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// 解析读位数据返回
         /// </summary>
         /// <param name="data">返回数据</param>
-        /// <param name="size">读取数据长度</param>
+        /// <param name="size">要读取的点数</param>
         /// <returns>位数据数组</returns>
         public Result<bool[]> ParseReadBitResponse(byte[] data,int size)
         {
@@ -300,7 +300,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// 解析读字数据返回
         /// </summary>
         /// <param name="data">返回数据</param>
-        /// <param name="size">读取数据长度</param>
+        /// <param name="size">要读取的字数</param>
         /// <returns>字数据数组</returns>
         public Result<short[]> ParseReadWordResponse(byte[] data ,int size)
         {

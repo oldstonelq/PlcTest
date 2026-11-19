@@ -28,7 +28,9 @@ namespace PlcTest.View.Controls
         /// <summary>暂停期间最多缓存多少条</summary>
         private const int MaxPending = 2000;
 
+        /// <summary>当前文本行数，用于控制上限、避免无限增长</summary>
         private int _lineCount;
+        /// <summary>是否暂停接收（暂停期间新帧进缓存不渲染）</summary>
         private bool _paused;
 
         /// <summary>当前保留的最大行数，超出后从头部裁掉</summary>
@@ -139,6 +141,7 @@ namespace PlcTest.View.Controls
 
         #region 渲染
 
+        /// <summary>格式化一帧并追加到文本末尾，同时按类型着色。</summary>
         private void AppendCore(CommFrame frame)
         {
             string line = Format(frame);
@@ -211,6 +214,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>判断一行是否属于警告（丢弃、超时、异常），用于着色。</summary>
         private static bool IsWarning(string text)
         {
             if (string.IsNullOrEmpty(text))
@@ -284,6 +288,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>勾了「自动滚动」才把视图滚到末尾。</summary>
         private void ScrollToEndIfNeeded()
         {
             if (_chkAutoScroll == null || !_chkAutoScroll.Checked)
@@ -307,6 +312,7 @@ namespace PlcTest.View.Controls
 
         #region 工具栏
 
+        /// <summary>暂停 / 继续接收：暂停期间新帧只进缓存不渲染。</summary>
         private void TogglePause()
         {
             _paused = !_paused;
@@ -323,6 +329,7 @@ namespace PlcTest.View.Controls
             RefreshPauseButton();
         }
 
+        /// <summary>按暂停状态更新按钮文字。</summary>
         private void RefreshPauseButton()
         {
             if (_btnPause == null)
@@ -342,6 +349,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>把当前全部日志复制到剪贴板。</summary>
         private void CopyAll()
         {
             if (string.IsNullOrEmpty(_box.Text))

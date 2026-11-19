@@ -42,6 +42,7 @@ namespace PlcTest.Server.ServerProtocolManagement.Melsec
             return 18 + bodyLen;
         }
 
+        /// <inheritdoc/>
         public bool ValidateRequestHeader(byte[] data)
         {
             if (data == null || data.Length < 22)

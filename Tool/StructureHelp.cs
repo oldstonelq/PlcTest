@@ -16,7 +16,7 @@ namespace PlcTest.Tool
         /// byte数组转结构体
         /// </summary>
         /// <param name="bytes">byte数组</param>
-        /// <param name="type">结构体类型</param>
+        /// <param name="startIndex">字节数组中的起始位置</param>
         /// <returns>转换后的结构体</returns>
         public static T BytesToStuct<T>(byte[] bytes, int startIndex) where T : struct
         {
@@ -40,6 +40,7 @@ namespace PlcTest.Tool
             return re;
         }
 
+        /// <summary>
         /// 结构体转byte数组
         /// </summary>
         /// <param name="structObj">要转换的结构体</param>

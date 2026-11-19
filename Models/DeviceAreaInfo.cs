@@ -24,6 +24,12 @@ namespace PlcTest.Models
         /// <summary>备注（编号范围、机型差异等）。暂时留空，字段先占位。</summary>
         public string Remark { get; private set; }
 
+        /// <summary>构造</summary>
+        /// <param name="area">软元件区域</param>
+        /// <param name="name">中文描述，如「数据寄存器」</param>
+        /// <param name="supportsBit">是否支持按位访问</param>
+        /// <param name="supportsWord">是否支持按字访问</param>
+        /// <param name="remark">备注，可为 null</param>
         public DeviceAreaInfo(MemoryArea area, string name, bool supportsBit, bool supportsWord, string remark = null)
         {
             Area = area;
@@ -46,6 +52,7 @@ namespace PlcTest.Models
                 remark);
         }
 
+        /// <summary>调试用：区域 + 描述，如「D 数据寄存器」。</summary>
         public override string ToString()
         {
             return Area + " " + Name;

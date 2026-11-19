@@ -19,12 +19,15 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace PlcTest.View.Forms
 {
+    /// <summary>
+    /// 主窗体：选协议与通讯方式，连上之后打开客户端 / 服务端工作台。
+    /// </summary>
     public partial class MainForm : Form
     {
         /// <summary>
         /// PLC实例
         /// </summary>
-        IPlcClient plcControl = null;
+        private IPlcClient _plcClient = null;
         /// <summary>
         /// 新的调试工作台（地址字符串输入 + 监视列表 + 报文），与旧窗体并存
         /// </summary>
@@ -154,7 +157,7 @@ namespace PlcTest.View.Forms
                 // 界面这里不再需要知道「哪个厂商对应哪个 Build 方法」
                 try
                 {
-                    plcControl = builder.UseProtocol(protocol).UseOptions(protocolOptions).Build();
+                    _plcClient = builder.UseProtocol(protocol).UseOptions(protocolOptions).Build();
                 }
                 catch (ArgumentOutOfRangeException)
                 {
@@ -163,10 +166,10 @@ namespace PlcTest.View.Forms
                 }
 
                 // 连接结果同步返回：失败原因能直接显示，不再出现"点了连接却没反应"
-                Result<bool> connectResult = plcControl.Connect();
+                Result<bool> connectResult = _plcClient.Connect();
                 if (!connectResult.IsSuccess)
                 {
-                    plcControl = null;
+                    _plcClient = null;
                     MessageBox.Show(connectResult.ErrorMsg, "连接失败");
                 }
                 else
@@ -181,7 +184,7 @@ namespace PlcTest.View.Forms
             }
             catch (Exception ex)
             {
-                plcControl = null;
+                _plcClient = null;
                 MessageBox.Show($"连接失败: {ex.Message}");
             }
         }
@@ -198,14 +201,14 @@ namespace PlcTest.View.Forms
             }
             plcWorkspaceForm = null;
 
-            if (plcControl != null)
+            if (_plcClient != null)
             {
-                plcControl.Disconnect();
-                plcControl = null;
+                _plcClient.Disconnect();
+                _plcClient = null;
             }
             else
             {
-                plcControl = null;
+                _plcClient = null;
             }
 
             _clientProtocol = null;
@@ -217,7 +220,7 @@ namespace PlcTest.View.Forms
         /// </summary>
         private void btn_PLCWorkspace_Click(object sender, EventArgs e)
         {
-            if (plcControl == null || !plcControl.IsConnected)
+            if (_plcClient == null || !_plcClient.IsConnected)
             {
                 MessageBox.Show("Please Check PLC Connected");
                 return;
@@ -226,7 +229,7 @@ namespace PlcTest.View.Forms
             if (plcWorkspaceForm == null || plcWorkspaceForm.IsDisposed)
             {
                 ProtocolType protocol = _clientProtocol ?? ProtocolType.MelsecMc3EBinary;
-                plcWorkspaceForm = new PlcWorkspaceForm(plcControl, protocol, _clientEndpoint, _clientOptions);
+                plcWorkspaceForm = new PlcWorkspaceForm(_plcClient, protocol, _clientEndpoint, _clientOptions);
                 plcWorkspaceForm.Show();
             }
             else
@@ -407,9 +410,9 @@ namespace PlcTest.View.Forms
         /// </summary>
         private void RefreshPLCUI()
         {
-            if (plcControl != null)
+            if (_plcClient != null)
             {
-                if (plcControl.IsConnected)
+                if (_plcClient.IsConnected)
                 {
                     lab_ConnectStatus.Text = "Connected";
                     lab_ConnectStatus.BackColor = Color.Green;

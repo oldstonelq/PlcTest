@@ -172,7 +172,7 @@ namespace PlcTest.View.Controls
             this.colValue.Name = "colValue";
             this.colValue.ReadOnly = true;
             this.colValue.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.colValue.Width = 260;
+            this.colValue.Width = 340;
             // 
             // colStatus
             // 

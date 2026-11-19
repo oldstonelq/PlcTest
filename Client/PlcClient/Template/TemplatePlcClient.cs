@@ -93,21 +93,21 @@ namespace PlcTest.Client.PlcClient.Template
         private CancellationTokenSource _cts;
         /// <summary>
         /// 心跳线程
-        /// </summary
+        /// </summary>
         private Task _connectTask;
         /// <summary>
         /// 关闭标志 True表示已关闭，False表示未关闭
         /// </summary>
         private bool _disposed = false;
         /// <summary>
-        /// 显示交互信息
+        /// 显示交互信息。模板还没实现收发流程，声明了但不会触发。
         /// </summary>
+#pragma warning disable 67
         public event Action<string> MessageLogged;
         /// <summary>
         /// 结构化通讯帧事件。模板还没实现收发流程，所以这里声明了但不会触发；
         /// 照抄本模板实现新客户端时，请在收发处同时触发它（见 CommunicationPlcClient.RaiseCommFrame）。
         /// </summary>
-#pragma warning disable 67
         public event Action<CommFrame> FrameLogged;
 #pragma warning restore 67
         /// <summary>

@@ -27,12 +27,16 @@ namespace PlcTest.Models
         /// <summary>界面显示文本</summary>
         public string Text { get; private set; }
 
+        /// <summary>构造</summary>
+        /// <param name="value">实际值（枚举实例）</param>
+        /// <param name="text">显示文本，为空时退回值的字符串形式</param>
         public ProtocolOptionValue(object value, string text)
         {
             Value = value;
             Text = string.IsNullOrEmpty(text) ? Convert.ToString(value) : text;
         }
 
+        /// <summary>调试用：显示文本。</summary>
         public override string ToString()
         {
             return Text;
@@ -49,6 +53,7 @@ namespace PlcTest.Models
     /// </summary>
     public sealed class ProtocolOption
     {
+        /// <summary>没有任何选项时返回的空集合</summary>
         private static readonly ProtocolOptionValue[] NoChoices = new ProtocolOptionValue[0];
 
         /// <summary>取值用的键，例如 CpuModel / DataFormat / Rack</summary>
@@ -332,6 +337,7 @@ namespace PlcTest.Models
             return builder.ToString();
         }
 
+        /// <summary>往 StringBuilder 里追加「键=值」，非首个前面补分隔符。</summary>
         private static void AppendPair(StringBuilder builder, string label, string value)
         {
             if (builder.Length > 0)
@@ -341,6 +347,7 @@ namespace PlcTest.Models
             builder.Append(label).Append('=').Append(value);
         }
 
+        /// <summary>调试用：等价于 <see cref="Describe"/> 传 null。</summary>
         public override string ToString()
         {
             return Describe(null);

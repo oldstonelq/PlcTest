@@ -553,6 +553,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Omron
             return result;
         }
 
+        /// <summary>从字节数组按大端读一个 32 位无符号整数。</summary>
         private static uint ReadUInt32BigEndian(byte[] data, int offset)
         {
             return ((uint)data[offset] << 24) | ((uint)data[offset + 1] << 16)

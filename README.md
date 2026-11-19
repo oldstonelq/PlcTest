@@ -416,6 +416,9 @@ dotnet run -c Release --no-build
 - [ ] 欧姆龙 EM bank 的界面预建：`TryAddRegister` 只能建 `bank = 0xFF` 的地址，界面无法为 bank≠0 预建寄存器。可以照 S7 的做法（`PlcAddress` 带 `DbNumber` 的重载）补，优先级低
 - [ ] 位视图目前把 0/1 放进「值」列，若要更紧凑（单独位格）需要按视图动态显隐列
 - [ ] `btn_Trigger` 触发按钮还没有事件实现
+- [ ] **UDP 通讯**：目前只有 TCP 与串口（`CommunicationType` 只有 `Tcp` / `Serial`，通讯实现也只有 `TcpClientCommunication` / `SerialPortClientCommunication` 与 `TcpServerCommunication` / `SerialServerCommunication`）。客户端要新增 `UdpClientCommunication`，把同步的「发出去 → 收一帧」改成「发出去 → 等来源地址匹配的响应」；服务端要新增 `UdpServerCommunication`，`ClientCount` / `IClientSession` 都得按远端 endpoint 模拟。
+  **真正的卡点在传输能力矩阵**：`ProtocolInfoAttribute` 的 `ClientTcp` / `ClientSerial` / `ServerTcp` / `ServerSerial` 是 4 个 bool，加第三种传输要改构造签名（10 个协议标签全部要动）；更麻烦的是 `ProtocolTypeExtensions.GetProtocols` 里 `bool tcp = communicationType == CommunicationType.Tcp`，UDP 会被当成串口、**静默返回错误的协议集合**。这一步与下方「结构扩展性 A」是同一件事，建议合并做。
+  协议侧：只有**欧姆龙 FINS/UDP** 是官方支持的（FINS 命令帧与传输无关，换 UDP 即可），Modbus 也有设备提供 UDP 封装；三菱 MC 与西门子 TPKT 是 TCP-only，界面要按传输过滤协议。
 - [ ] 界面提示语改中文（当前是 `Please Check ...` 这类英文）
 - [ ] 用真实 PLC / 客户端做一次真机联调（本轮改造只做了编译 + 冒烟验证）
 - [ ] **汇川服务端的「移除区域」是退化的**：`InovancePlcServer.RemoveAllRegisters` 实际调用 `ResetAllRegisterValues`——汇川按「整片地址空间一直有效」建模，没有地址登记表可删，所以客户端之后仍能读到（读到 0），不会像三菱/欧姆龙那样报「地址不存在」。界面按钮与日志文案目前按「已移除」提示，与行为不符。要么按三菱那样引入地址登记表，要么让界面按服务端能力禁用该按钮
@@ -452,6 +455,12 @@ dotnet run -c Release --no-build
 
 ### 已完成（2026-11 归档）
 
+- [x] **监视详情页 + 工作台放大**：新增「详情」页签，把每个监视条目展开成
+  「行头 = 起始地址、列头 = 偏移、格子 = 值」的矩阵（字 12 列、位 16 列），
+  双击监视表的行跳转并定位，详情页始终显示全部区域、另可勾「仅显示选中区域」。
+  详情页不自己发请求，只订阅 `MonitorGrid.RowUpdated`，通讯量不翻倍。
+  同时把值列摘要改成紧凑格式并补真实总数（`111 … (50)`，原来只给一个省略号），
+  工作台尺寸 `1020×660` → `1280×820`，小屏按 `ScreenFit` 等比缩到 85%。
 - [x] **命名规范统一（4 批）**：① `S7PlcServer` 项级参数 `request`→`item`、3 个返回 bool 的 `ParseXxx` 改 `TryParseXxx`；② 去掉 `mData`/`mReStr`/`mbyte`/`mPen`/`mLength` 等匈牙利前缀（6 个三菱协议 + `CommunicationPlcClient` + `MGroupBox`），三菱协议里 `Data`/`Command`/`Address`/`Length`/`RealData` 等大写局部变量改语义化驼峰（`frame`/`packet`/`addressText`/`lengthText`/`values`），`CommunicationPlcClient` 里与协议方法同名的局部 `BuildReadData`/`BuildCompletePack` 改 `commandBody`/`requestFrame`；③ 事件去 `Event` 后缀与 `On` 前缀（`ShowCommMessageEvent`→`MessageLogged`、`FrameEvent`→`FrameLogged`、`OnDataReceived`→`DataReceived`）；④ `ClearRegisters`→`RemoveAllRegisters`，并修掉 `Client/PLCClientBuilder.cs`、`Models/PLCAddress.cs`、`InovanceModbusTCPClientProtocol.cs` 三处文件名大小写，以及 `Client/PLCClient` 目录（`csproj` 与 git 索引原本混用两种大小写）
 
 - [x] **西门子 S7 服务端（从站）**：新增 `IS7ServerProtocol` / `S7RequestInfo` / `SiemensS71200ServerProtocol` / `S7PlcServer`，I/Q/M/DB 四区、位字共享字节内存、多变量、DB 按块惰性分配。`serverTcp` 已打开，界面两端都可选

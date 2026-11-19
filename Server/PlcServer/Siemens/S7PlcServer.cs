@@ -23,11 +23,16 @@ namespace PlcTest.Server.PlcServer.Siemens
         /// <summary>每个区的字节数。真机 S7-1200 的 M 区通常 8–16KB，这里给 64KB 与 HSL 同量级，够测。</summary>
         private const int AreaSize = 65536;
 
+        /// <summary>S7 协议实现</summary>
         private readonly IS7ServerProtocol _protocol;
+        /// <summary>I / Q / M 三个字节数组的并发锁</summary>
         private readonly object _memoryLock = new object();
 
+        /// <summary>输入区（I）字节</summary>
         private readonly byte[] _input = new byte[AreaSize];
+        /// <summary>输出区（Q）字节</summary>
         private readonly byte[] _output = new byte[AreaSize];
+        /// <summary>位存储区（M）字节</summary>
         private readonly byte[] _memory = new byte[AreaSize];
 
         /// <summary>
@@ -112,6 +117,7 @@ namespace PlcTest.Server.PlcServer.Siemens
             }
         }
 
+        /// <summary>处理读请求：按数据项逐个取字节 / 位，拼成响应。</summary>
         private void HandleRead(byte[] data, IClientSession client)
         {
             S7RequestInfo request;
@@ -159,6 +165,7 @@ namespace PlcTest.Server.PlcServer.Siemens
             return S7ItemResult.OfWords(words);
         }
 
+        /// <summary>处理写请求：按数据项落盘并回写响应码。</summary>
         private void HandleWrite(byte[] data, IClientSession client)
         {
             S7RequestInfo request;
@@ -217,7 +224,7 @@ namespace PlcTest.Server.PlcServer.Siemens
         }
 
         /// <summary>
-        /// 读连续位。<paramref name="S7RequestInfo.ByteOffset"/> 是字节偏移，
+        /// 读连续位。<see cref="S7ItemRequest.ByteOffset"/> 是字节偏移，
         /// 位索引按「字节 × 8」展开——与客户端 <c>addrVal = Address * 8</c> 的口径一致。
         /// </summary>
         private bool TryReadBits(S7ItemRequest item, out bool[] bits, out string error)
@@ -319,6 +326,7 @@ namespace PlcTest.Server.PlcServer.Siemens
             return TryWriteWords(buffer, item, out error);
         }
 
+        /// <summary>写连续位：先按位展开到字节，再写进位存储区。</summary>
         private bool TryWriteBits(byte[] buffer, S7ItemRequest item, out string error)
         {
             error = null;
@@ -363,6 +371,7 @@ namespace PlcTest.Server.PlcServer.Siemens
             return true;
         }
 
+        /// <summary>写连续字：按大端把字节写进位存储区。</summary>
         private bool TryWriteWords(byte[] buffer, S7ItemRequest item, out string error)
         {
             error = null;
@@ -497,6 +506,7 @@ namespace PlcTest.Server.PlcServer.Siemens
             return Result<bool>.Success(true);
         }
 
+        /// <summary>把协议层解析出的请求项转成内部的 S7ItemRequest。</summary>
         private static S7ItemRequest ToItem(PlcAddress address, int length, bool isBit)
         {
             return new S7ItemRequest
@@ -530,6 +540,7 @@ namespace PlcTest.Server.PlcServer.Siemens
             return address != null && TryAddRegister(address.Area, address.DbNumber ?? 0, address.Address);
         }
 
+        /// <summary>登记一个字地址；越界或编号非法时返回 false。</summary>
         private bool TryAddRegister(MemoryArea area, int dbNumber, int address)
         {
             byte[] buffer = BufferOf(area, dbNumber);
@@ -575,6 +586,7 @@ namespace PlcTest.Server.PlcServer.Siemens
             return ContainsRegister(area, 0, address);
         }
 
+        /// <summary>该字地址是否已登记（界面「已初始化」视图用）。</summary>
         private bool ContainsRegister(MemoryArea area, int dbNumber, int address)
         {
             ConcurrentDictionary<int, byte> table;
@@ -610,6 +622,7 @@ namespace PlcTest.Server.PlcServer.Siemens
             }
         }
 
+        /// <summary>把一段已登记地址的值清零。</summary>
         private void ResetRegisterValues(MemoryArea area, int dbNumber, int start, int length)
         {
             byte[] buffer = BufferOf(area, dbNumber);

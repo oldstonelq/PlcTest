@@ -11,15 +11,15 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
     public class MelsecMc1EBinaryClientProtocol : IPlcClientProtocol
     {
         /// <summary>
-        /// 获取寄存器地址的真实编码（返回 int，可包含扩展编码）
-        /// </summary>
-        /// <param name="memoryArea">寄存器区域</param>
-        /// <returns>寄存器地址的真实编码</returns>
-        /// <summary>
         /// 适用机型，决定软元件编号上限。默认 FX3G / FX3GC（依据 Document/Melsec/1E寄存器地址.png）。
         /// </summary>
         public Melsec1ECpuModel CpuModel { get; set; } = Melsec1ECpuModel.Fx3G;
 
+        /// <summary>
+        /// 获取寄存器地址的真实编码（返回 int，可包含扩展编码）
+        /// </summary>
+        /// <param name="memoryArea">寄存器区域</param>
+        /// <returns>寄存器地址的真实编码</returns>
         public int GetMemoryCode(MemoryArea memoryArea)
         {
             // 2 字节软元件代码取自 1E 软元件表；单字符软元件用空格(0x20)补齐，与 3E 的 '*' 不同
@@ -110,7 +110,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// 写入字数据转Byte数组
         /// </summary>
         /// <param name="shorts">字数据</param>
-        /// <returns打包后的字节数组></returns>
+        /// <returns>打包后的字节数组</returns>
         public byte[] GetWriteWordData(short[] shorts)
         {
             byte[] buffer = new byte[shorts.Length * 2];
@@ -220,7 +220,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// 解析读位数据返回
         /// </summary>
         /// <param name="data">返回数据</param>
-        /// <param name="size">读取数据长度</param>
+        /// <param name="size">要读取的点数</param>
         /// <returns>位数据数组</returns>
         public Result<bool[]> ParseReadBitResponse(byte[] data, int size)
         {
@@ -246,7 +246,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Melsec
         /// 解析读字数据返回
         /// </summary>
         /// <param name="data">返回数据</param>
-        /// <param name="size">读取数据长度</param>
+        /// <param name="size">要读取的字数</param>
         /// <returns>字数据数组</returns>
         public Result<short[]> ParseReadWordResponse(byte[] data, int size)
         {

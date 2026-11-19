@@ -207,6 +207,7 @@ namespace PlcTest.Server.ServerCommunication
             }
         }
 
+        /// <summary>去掉字符串首尾空白，空值返回空串。</summary>
         private static byte[] Trim(byte[] source, int length)
         {
             if (length == source.Length)

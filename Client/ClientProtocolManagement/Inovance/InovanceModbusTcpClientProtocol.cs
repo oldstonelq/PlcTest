@@ -23,11 +23,6 @@ namespace PlcTest.Client.ClientProtocolManagement.Inovance
         /// </summary>
         private readonly byte _unitId = 1;
         /// <summary>
-        /// 获取寄存器地址的真实编码（返回 byte，以兼容通用接口）。
-        /// </summary>
-        /// <param name="memoryArea">寄存器区域</param>
-        /// <returns>寄存器地址的真实编码</returns>
-        /// <summary>
         /// 适用机型，决定可用软元件与编号范围。默认 H3U。
         /// </summary>
         public InovanceCpuModel CpuModel { get; set; } = InovanceCpuModel.H3U;
@@ -38,6 +33,11 @@ namespace PlcTest.Client.ClientProtocolManagement.Inovance
         /// </summary>
         public DataFormat DataFormat { get; set; } = DataFormat.CDAB;
 
+        /// <summary>
+        /// 获取寄存器地址的真实编码（返回 byte，以兼容通用接口）。
+        /// </summary>
+        /// <param name="memoryArea">寄存器区域</param>
+        /// <returns>寄存器地址的真实编码</returns>
         public int GetMemoryCode(MemoryArea memoryArea)
         {
             // 返回该软元件在 Modbus 地址空间中的起始地址（真实地址 = 起始地址 + 编号）
@@ -115,7 +115,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Inovance
         /// 写入字数据转Byte数组
         /// </summary>
         /// <param name="shorts">字数据</param>
-        /// <returns打包后的字节数组></returns>
+        /// <returns>打包后的字节数组</returns>
         public byte[] GetWriteWordData(short[] shorts)
         {
             // Modbus registers are big-endian per register
@@ -345,7 +345,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Inovance
         /// 解析读位数据返回
         /// </summary>
         /// <param name="data">返回数据</param>
-        /// <param name="size">读取数据长度</param>
+        /// <param name="size">要读取的点数</param>
         /// <returns>位数据数组</returns>
         public Result<bool[]> ParseReadBitResponse(byte[] data, int size)
         {
@@ -403,7 +403,7 @@ namespace PlcTest.Client.ClientProtocolManagement.Inovance
         /// 解析读字数据返回
         /// </summary>
         /// <param name="data">返回数据</param>
-        /// <param name="size">读取数据长度</param>
+        /// <param name="size">要读取的字数</param>
         /// <returns>字数据数组</returns>
         public Result<short[]> ParseReadWordResponse(byte[] data, int size)
         {

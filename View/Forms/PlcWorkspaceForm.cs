@@ -26,7 +26,9 @@ namespace PlcTest.View.Forms
     /// </summary>
     public partial class PlcWorkspaceForm : Form
     {
+        /// <summary>客户端实例</summary>
         private IPlcClient _client;
+        /// <summary>协议能力快照</summary>
         private ProtocolCapability _capability;
         /// <summary>当前生效的协议私有选项的显示文本（如「机型=Easy · 字节序=CDAB」），空串表示无选项</summary>
         private string _optionText;
@@ -77,6 +79,9 @@ namespace PlcTest.View.Forms
                 throw new ArgumentNullException("client");
             }
 
+            // 设计尺寸按 1280×820 画；小屏装不下时等比缩小（固定尺寸窗体不会自己适应）
+            ClientSize = ScreenFit.Fit(ClientSize);
+
             _client = client;
             _capability = ProtocolCapability.FromClient(client, protocol);
             _optionText = (options ?? new ProtocolOptions()).Describe(ProtocolOptionCatalog.ForClient(protocol));
@@ -89,6 +94,24 @@ namespace PlcTest.View.Forms
             _addressPanel.Capability = _capability;
             _monitor.Capability = _capability;
             _monitor.Reader = ReadForMonitor;
+            _monitor.RowUpdated += _detail.Apply;
+            _monitor.AutoRefreshChanged += running =>
+            {
+                if (!running)
+                {
+                    _detail.ClearValues();
+                }
+            };
+            _monitor.RowActivated += OnRowActivated;
+
+            // 切到详情页时才重建：平时不必为看不见的控件维护布局
+            _pageDetail.Enter += (s, e) => BeginInvoke((Action)(() =>
+            {
+                // 等这一轮布局结束再重建：Enter 触发时 _flow 的 ClientSize 可能还是旧值
+                _detail.Rebuild(_monitor.Items);
+            }));
+
+            _detail.Rebuild(_monitor.Items);
 
             _lstAreas.SelectedIndexChanged += (s, e) => OnAreaPicked();
             _addressPanel.AddressChanged += (s, e) => RefreshButtons();
@@ -111,6 +134,7 @@ namespace PlcTest.View.Forms
 
         #region 左侧软元件
 
+        /// <summary>按协议能力填充左侧软元件列表。</summary>
         private void FillAreaList()
         {
             foreach (DeviceAreaInfo info in _capability.Areas)
@@ -152,6 +176,25 @@ namespace PlcTest.View.Forms
         /// <summary>
         /// 监视列表的读取实现：位走 ReadBitArray，字走 ReadWordArray。
         /// </summary>
+        /// <summary>
+        /// 双击监视表的某行：重建详情页并定位过去。
+        /// 先重建再切页——<c>ScrollControlIntoView</c> 对不可见的控件不起作用。
+        /// </summary>
+        /// <param name="index">条目序号</param>
+        private void OnRowActivated(int index)
+        {
+            _tabs.SelectedTab = _pageDetail;
+
+            // 切页之后再排一帧：这时候 TabPage 才有真实尺寸，
+            // Rebuild 才能算出正确的块宽，ScrollControlIntoView 也才滚得动。
+            BeginInvoke((Action)(() =>
+            {
+                _detail.Rebuild(_monitor.Items);
+                _detail.FocusRegion(index);
+            }));
+        }
+
+        /// <summary>监视表 / 详情页的读取入口：按地址与长度向 PLC 取值。</summary>
         private MonitorReadResult ReadForMonitor(PlcAddress address)
         {
             if (!_client.IsConnected)
@@ -169,6 +212,7 @@ namespace PlcTest.View.Forms
             return words.IsSuccess ? MonitorReadResult.OfWords(words.Data) : MonitorReadResult.Fail(words.ErrorMsg);
         }
 
+        /// <summary>「读取」按钮：读一次并显示结果。</summary>
         private async void OnReadClick(object sender, EventArgs e)
         {
             if (!_addressPanel.IsValid)
@@ -210,6 +254,7 @@ namespace PlcTest.View.Forms
             }
         }
 
+        /// <summary>「写入」按钮：写一次并显示结果。</summary>
         private async void OnWriteClick(object sender, EventArgs e)
         {
             if (!_addressPanel.IsValid)
@@ -269,6 +314,7 @@ namespace PlcTest.View.Forms
             }
         }
 
+        /// <summary>把写入结果写到结果框，失败时标红。</summary>
         private void ShowWriteResult(Result<bool> result, PlcAddress address, int count)
         {
             if (result.IsSuccess)
@@ -352,6 +398,7 @@ namespace PlcTest.View.Forms
             return true;
         }
 
+        /// <summary>按逗号 / 空格 / 分号把一串数值拆成若干段。</summary>
         private static string[] SplitValues(string text)
         {
             if (string.IsNullOrEmpty(text))
@@ -362,6 +409,7 @@ namespace PlcTest.View.Forms
             return text.Split(new char[] { ' ', ',', '\t', ';', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        /// <summary>位数组转成可显示的 0/1 串。</summary>
         private static string DescribeBits(PlcAddress address, bool[] values)
         {
             if (values == null || values.Length == 0)
@@ -386,6 +434,7 @@ namespace PlcTest.View.Forms
             return builder.ToString();
         }
 
+        /// <summary>字数组转成逗号分隔的十进制串。</summary>
         private static string DescribeWords(PlcAddress address, short[] values)
         {
             if (values == null || values.Length == 0)
@@ -415,6 +464,7 @@ namespace PlcTest.View.Forms
 
         #region 状态
 
+        /// <summary>刷新底部状态栏：端点、协议、选项摘要、耗时等。</summary>
         private void RefreshStatus()
         {
             bool connected = _client.IsConnected;
@@ -426,6 +476,7 @@ namespace PlcTest.View.Forms
             RefreshButtons();
         }
 
+        /// <summary>按连接状态与忙碌状态刷新按钮可用性。</summary>
         private void RefreshButtons()
         {
             bool ready = _client.IsConnected;
@@ -433,6 +484,7 @@ namespace PlcTest.View.Forms
             _btnWrite.Enabled = ready && _addressPanel.IsValid;
         }
 
+        /// <summary>切换忙碌态：读写期间禁用按钮，避免重入。</summary>
         private void SetBusy(bool busy)
         {
             _btnRead.Enabled = !busy && _client.IsConnected && _addressPanel.IsValid;

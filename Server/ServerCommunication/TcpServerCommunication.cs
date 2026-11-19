@@ -11,12 +11,16 @@ using System.Threading.Tasks;
 
 namespace PlcTest.Server.ServerCommunication
 {
+    /// <summary>
+    /// TCP 服务端通讯：监听端口、接受客户端连接，按连接分发收发。
+    /// </summary>
     public class TcpServerCommunication : IServerCommunication
     {
         /// <summary>
         /// IP地址和Port口
         /// </summary>
         private IPEndPoint _ipAndPoint;
+        /// <summary>监听地址与端口。</summary>
         public IPEndPoint IpAndPoint
         {
             get { return _ipAndPoint; }
@@ -26,6 +30,7 @@ namespace PlcTest.Server.ServerCommunication
         /// 负责监听的Socket对象
         /// </summary>
         private Socket _listenSocket;
+        /// <summary>负责监听的 Socket。</summary>
         public Socket ListenSocket
         {
             get { return _listenSocket; }
@@ -289,6 +294,7 @@ namespace PlcTest.Server.ServerCommunication
                 // Stop 与 BeginAcceptNext 并发时监听 socket 已被置空
             }
         }
+        /// <summary>收到数据后的处理：组装成完整帧再抛给上层。</summary>
         private Task ReceiveDataFromClient(TcpClientSession session)
         {
             return Task.Run(() =>
@@ -425,6 +431,7 @@ namespace PlcTest.Server.ServerCommunication
             return filled > 0 ? Trim(buffer, filled) : null;
         }
 
+        /// <summary>去掉字符串首尾空白，空值返回空串。</summary>
         private static byte[] Trim(byte[] source, int length)
         {
             if (length == source.Length)
@@ -452,6 +459,7 @@ namespace PlcTest.Server.ServerCommunication
     /// </summary>
     internal sealed class TcpClientSession : IClientSession
     {
+        /// <summary>监听 Socket</summary>
         private readonly Socket _socket;
 
         public TcpClientSession(Socket socket)

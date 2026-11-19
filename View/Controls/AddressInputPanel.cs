@@ -21,8 +21,11 @@ namespace PlcTest.View.Controls
     /// </summary>
     public partial class AddressInputPanel : UserControl
     {
+        /// <summary>当前协议的能力快照</summary>
         private ProtocolCapability _capability = ProtocolCapability.Empty;
+        /// <summary>最近一次解析成功的地址；失败时为 null</summary>
         private PlcAddress _address;
+        /// <summary>最近一次解析失败的原因</summary>
         private string _error;
 
         /// <summary>正在按代码回填控件，忽略由此产生的事件，避免「文本改下拉、下拉改文本」来回触发</summary>
@@ -275,6 +278,7 @@ namespace PlcTest.View.Controls
             _syncing = false;
         }
 
+        /// <summary>从区域下拉取出当前选中的区域。</summary>
         private bool TryGetSelectedArea(out MemoryArea area)
         {
             area = MemoryArea.D;
@@ -285,6 +289,7 @@ namespace PlcTest.View.Controls
             return Enum.TryParse(_cmbArea.SelectedItem.ToString(), out area);
         }
 
+        /// <summary>按协议能力重建区域下拉。</summary>
         private void FillAreaCombo()
         {
             _syncing = true;
@@ -302,6 +307,7 @@ namespace PlcTest.View.Controls
             _syncing = false;
         }
 
+        /// <summary>程序回填下拉选中项，不触发解析，避免来回联动。</summary>
         private void SelectAreaQuietly(MemoryArea area)
         {
             int index = _cmbArea.Items.IndexOf(area.ToString());
@@ -349,6 +355,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>把解析结果变化转发给订阅方。</summary>
         private void OnAddressChanged()
         {
             EventHandler handler = AddressChanged;

@@ -38,6 +38,23 @@ namespace PlcTest.View.Controls
         /// <summary>建议地址对应的位/字方式</summary>
         private AddressValueKind _suggestedKind = AddressValueKind.Bit;
 
+        /// <summary>
+        /// 某一行读完后触发，参数是行号与结果。
+        /// 详情页靠它拿数据——它自己不发起读取，否则同一批地址要读两遍。
+        /// </summary>
+        public event Action<int, MonitorReadResult> RowUpdated;
+
+        /// <summary>
+        /// 双击某一行（表头不算）。宿主据此切到详情页并定位到对应区块。
+        /// </summary>
+        public event Action<int> RowActivated;
+
+        /// <summary>
+        /// 自动刷新开/关变化。宿主据此在停止后清掉详情页的旧读数——
+        /// 不再更新的数字留在屏幕上比空着更容易误判。
+        /// </summary>
+        public event Action<bool> AutoRefreshChanged;
+
         /// <summary>地址解析与读取的实现，由宿主窗体提供（客户端或服务端）</summary>
         public Func<PlcAddress, MonitorReadResult> Reader { get; set; }
 
@@ -58,6 +75,12 @@ namespace PlcTest.View.Controls
         public bool IsAutoRefresh
         {
             get { return _timer.Enabled; }
+        }
+
+        /// <summary>表格当前是否只读（自动刷新期间为 true）</summary>
+        public bool IsGridReadOnly
+        {
+            get { return _grid.ReadOnly; }
         }
 
         /// <summary>
@@ -85,7 +108,26 @@ namespace PlcTest.View.Controls
                 }
             };
 
+            _grid.CellDoubleClick += (s, e) =>
+            {
+                if (e.RowIndex < 0)
+                {
+                    return;
+                }
+
+                Action<int> handler = RowActivated;
+                if (handler != null)
+                {
+                    handler(e.RowIndex);
+                }
+            };
+
             _timer.Tick += (s, e) => PollAsync();
+
+            // 用户按 Delete 键删行也要跟着刷新按钮状态
+            _grid.RowsRemoved += (s, e) => UpdateButtonState();
+
+            UpdateButtonState();
         }
 
         /// <summary>
@@ -111,6 +153,7 @@ namespace PlcTest.View.Controls
 
             SetStatus(index, string.IsNullOrEmpty(addressText) ? "待填地址" : "待刷新", false);
             _grid.CurrentCell = _grid.Rows[index].Cells[ColAddress];
+            UpdateButtonState();
         }
 
         /// <summary>
@@ -128,12 +171,32 @@ namespace PlcTest.View.Controls
             {
                 _grid.Rows.RemoveAt(indexes[i]);
             }
+
+            UpdateButtonState();
         }
 
         /// <summary>当前行数（测试与宿主统计用）</summary>
         public int RowCount
         {
             get { return _grid.Rows.Count; }
+        }
+
+        /// <summary>
+        /// 当前所有监视条目，按表格行序。
+        /// 每次访问从单元格现读，不单独缓存：地址/方式/长度随时可改，
+        /// 缓存一份就要同时处理行增删、单元格编辑、Delete 键删行三条同步路径，不值当。
+        /// </summary>
+        public IReadOnlyList<MonitorItem> Items
+        {
+            get
+            {
+                var items = new List<MonitorItem>(_grid.Rows.Count);
+                for (int i = 0; i < _grid.Rows.Count; i++)
+                {
+                    items.Add(ReadItem(i));
+                }
+                return items;
+            }
         }
 
         /// <summary>读某一行的单元格文本（测试与宿主用）</summary>
@@ -161,8 +224,58 @@ namespace PlcTest.View.Controls
         /// <summary>开启 / 停止自动刷新</summary>
         public void ToggleAutoRefresh()
         {
-            _timer.Enabled = !_timer.Enabled;
-            _btnPause.Text = _timer.Enabled ? "暂停" : "开始";
+            SetAutoRefresh(!_timer.Enabled);
+        }
+
+        /// <summary>
+        /// 开/关自动刷新。表格空着时不允许开——空轮询没有意义。
+        /// </summary>
+        private void SetAutoRefresh(bool running)
+        {
+            if (running && _grid.Rows.Count == 0)
+            {
+                return;
+            }
+
+            if (_timer.Enabled == running)
+            {
+                return;
+            }
+
+            _timer.Enabled = running;
+            _btnPause.Text = running ? "暂停" : "开始";
+
+            UpdateButtonState();
+
+            Action<bool> handler = AutoRefreshChanged;
+            if (handler != null)
+            {
+                handler(running);
+            }
+        }
+
+        /// <summary>
+        /// 没有行时，刷新、删除、开始都没有意义，一律置灰；
+        /// 若此时还在自动刷新（比如刚把最后一行删掉），顺手停掉。
+        /// </summary>
+        private void UpdateButtonState()
+        {
+            bool hasRows = _grid.Rows.Count > 0;
+            bool running = _timer.Enabled;
+
+            // 防呆：开始刷新后监视集合就不该再变——表格转只读，加/删按钮置灰。
+            // 只读不影响选中与双击，跳详情页的路径仍然通。
+            // 边刷边改会让表格行与详情页区块错位，读到的是「改之前那一行」的值。
+            _grid.ReadOnly = running;
+            _btnAdd.Enabled = !running;
+            _btnRemove.Enabled = hasRows && !running;
+            _btnRefresh.Enabled = hasRows;
+            _btnPause.Enabled = hasRows;
+
+            if (!hasRows && running)
+            {
+                SetAutoRefresh(false);
+            }
         }
 
         /// <summary>
@@ -252,6 +365,7 @@ namespace PlcTest.View.Controls
             return Read(address);
         }
 
+        /// <summary>调一次读取委托，异常在这里兜住，统一转成失败结果。</summary>
         private MonitorReadResult Read(PlcAddress address)
         {
             try
@@ -263,6 +377,28 @@ namespace PlcTest.View.Controls
             {
                 return MonitorReadResult.Fail(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// 读出一行的条目信息。不校验地址是否合法——非法时
+        /// <see cref="MonitorItem.Address"/> 为 null，详情页照样给它留一块并显示原因。
+        /// </summary>
+        private MonitorItem ReadItem(int rowIndex)
+        {
+            DataGridViewRow row = _grid.Rows[rowIndex];
+            string text = Convert.ToString(row.Cells[ColAddress].Value);
+            AddressValueKind kind = Convert.ToString(row.Cells[ColKind].Value) == "字"
+                ? AddressValueKind.Word
+                : AddressValueKind.Bit;
+
+            int length;
+            if (!int.TryParse(Convert.ToString(row.Cells[ColLength].Value), out length) || length < 1)
+            {
+                length = 1;
+            }
+
+            Result<PlcAddress> parsed = AddressTextParser.Parse(text, Capability, kind);
+            return new MonitorItem(text, kind, length, parsed.IsSuccess ? parsed.Data : null);
         }
 
         /// <summary>
@@ -316,21 +452,29 @@ namespace PlcTest.View.Controls
             if (result == null)
             {
                 SetStatus(rowIndex, "无结果", true);
-                return;
             }
-
-            if (!result.Success)
+            else if (!result.Success)
             {
                 SetStatus(rowIndex, result.Error, true);
-                return;
+            }
+            else
+            {
+                _grid.Rows[rowIndex].Cells[ColValue].Value = Describe(result);
+                SetStatus(rowIndex, "OK", false);
             }
 
-            _grid.Rows[rowIndex].Cells[ColValue].Value = Describe(result);
-            SetStatus(rowIndex, "OK", false);
+            // 详情页订阅这里。result 可能为 null（无结果），由订阅方决定怎么显示。
+            Action<int, MonitorReadResult> handler = RowUpdated;
+            if (handler != null)
+            {
+                handler(rowIndex, result);
+            }
         }
 
         /// <summary>
-        /// 值的显示：位用 0/1 串、字用十进制；超出 16 个只显示前 16 个，避免撑爆列宽。
+        /// 值的显示：位用紧凑的 0/1 串（不加空格，同样宽度能多放一倍）、字用十进制。
+        /// 超过 16 个只显示前 16 个，但末尾必须带上真实总数——
+        /// 只写一个省略号的话，长度 20 和长度 16 看起来一模一样。
         /// </summary>
         private static string Describe(MonitorReadResult result)
         {
@@ -339,13 +483,15 @@ namespace PlcTest.View.Controls
             if (result.Bits != null)
             {
                 int count = Math.Min(result.Bits.Length, limit);
-                var parts = new List<string>(count);
+                var chars = new char[count];
                 for (int i = 0; i < count; i++)
                 {
-                    parts.Add(result.Bits[i] ? "1" : "0");
+                    chars[i] = result.Bits[i] ? '1' : '0';
                 }
-                string text = string.Join(" ", parts);
-                return result.Bits.Length > limit ? text + " …" : text;
+                string text = new string(chars);
+                return result.Bits.Length > limit
+                    ? text + " … (" + result.Bits.Length + ")"
+                    : text;
             }
 
             if (result.Words != null)
@@ -357,7 +503,9 @@ namespace PlcTest.View.Controls
                     parts.Add(result.Words[i].ToString());
                 }
                 string text = string.Join(", ", parts);
-                return result.Words.Length > limit ? text + " …" : text;
+                return result.Words.Length > limit
+                    ? text + " … (" + result.Words.Length + ")"
+                    : text;
             }
 
             return string.Empty;
@@ -380,6 +528,7 @@ namespace PlcTest.View.Controls
             }
         }
 
+        /// <summary>写状态列，并按成败着色。</summary>
         private void SetStatus(int rowIndex, string text, bool isError)
         {
             if (rowIndex < 0 || rowIndex >= _grid.Rows.Count)
@@ -391,6 +540,5 @@ namespace PlcTest.View.Controls
             cell.Value = text;
             cell.Style.ForeColor = isError ? Color.FromArgb(163, 45, 45) : Color.FromArgb(15, 110, 86);
         }
-        /// <summary>释放时停掉定时器，避免窗体关了还在轮询</summary>
     }
 }
