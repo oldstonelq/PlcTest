@@ -1,6 +1,7 @@
 using PlcTest.View.Support;
 using System;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace PlcTest.View.Controls
@@ -40,6 +41,11 @@ namespace PlcTest.View.Controls
         public MonitorRegionBlock()
         {
             InitializeComponent();
+
+            // 矩阵动辄上百个格子，不开双缓冲时父容器不擦底，重建后旧格子的
+            // 残像会留在屏幕上（标题已经换成新地址、下面还画着上一块的格子）。
+            EnableDoubleBuffer(this);
+            EnableDoubleBuffer(_matrix);
 
             _labTitle.Font = new Font(_labTitle.Font, FontStyle.Bold);
             _btnToggle.Click += (s, e) => SetExpanded(!IsExpanded);
@@ -181,6 +187,34 @@ namespace PlcTest.View.Controls
             return _cells[index].Text;
         }
 
+        /// <summary>
+        /// 清空所有格子的读数（保留矩阵结构）。停止刷新时调用。
+        /// </summary>
+        public void ClearValues()
+        {
+            if (_cells.Length == 0)
+            {
+                return;
+            }
+
+            _matrix.SuspendLayout();
+            try
+            {
+                for (int i = 0; i < _cells.Length; i++)
+                {
+                    if (_cells[i].Text.Length != 0)
+                    {
+                        _cells[i].Text = string.Empty;
+                    }
+                    _cells[i].ForeColor = SystemColors.ControlText;
+                }
+            }
+            finally
+            {
+                _matrix.ResumeLayout();
+            }
+        }
+
         /// <summary>展开或折叠矩阵</summary>
         /// <param name="expanded">true 展开</param>
         public void SetExpanded(bool expanded)
@@ -188,9 +222,38 @@ namespace PlcTest.View.Controls
             _matrix.Visible = expanded;
             _btnToggle.Text = expanded ? "收起" : "展开";
             AdjustHeight();
+
+            // 折叠后那块区域要重画，否则矩阵的残像会留在原处
+            if (Parent != null)
+            {
+                Parent.Invalidate(true);
+            }
+            else
+            {
+                Invalidate(true);
+            }
         }
 
         #region 内部
+
+        /// <summary>
+        /// 打开控件及其容器的双缓冲。WinForms 的 Panel 子类把 DoubleBuffered
+        /// 设成了 protected，只能反射设置。
+        /// </summary>
+        private static void EnableDoubleBuffer(Control control)
+        {
+            if (control == null)
+            {
+                return;
+            }
+
+            PropertyInfo property = typeof(Control).GetProperty(
+                "DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (property != null)
+            {
+                property.SetValue(control, true, null);
+            }
+        }
 
         private string BuildTitle()
         {

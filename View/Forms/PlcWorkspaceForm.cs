@@ -93,6 +93,13 @@ namespace PlcTest.View.Forms
             _monitor.Capability = _capability;
             _monitor.Reader = ReadForMonitor;
             _monitor.RowUpdated += _detail.Apply;
+            _monitor.AutoRefreshChanged += running =>
+            {
+                if (!running)
+                {
+                    _detail.ClearValues();
+                }
+            };
             _monitor.RowActivated += OnRowActivated;
 
             // 切到详情页时才重建：平时不必为看不见的控件维护布局

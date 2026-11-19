@@ -49,6 +49,12 @@ namespace PlcTest.View.Controls
         /// </summary>
         public event Action<int> RowActivated;
 
+        /// <summary>
+        /// 自动刷新开/关变化。宿主据此在停止后清掉详情页的旧读数——
+        /// 不再更新的数字留在屏幕上比空着更容易误判。
+        /// </summary>
+        public event Action<bool> AutoRefreshChanged;
+
         /// <summary>地址解析与读取的实现，由宿主窗体提供（客户端或服务端）</summary>
         public Func<PlcAddress, MonitorReadResult> Reader { get; set; }
 
@@ -111,6 +117,11 @@ namespace PlcTest.View.Controls
             };
 
             _timer.Tick += (s, e) => PollAsync();
+
+            // 用户按 Delete 键删行也要跟着刷新按钮状态
+            _grid.RowsRemoved += (s, e) => UpdateButtonState();
+
+            UpdateButtonState();
         }
 
         /// <summary>
@@ -136,6 +147,7 @@ namespace PlcTest.View.Controls
 
             SetStatus(index, string.IsNullOrEmpty(addressText) ? "待填地址" : "待刷新", false);
             _grid.CurrentCell = _grid.Rows[index].Cells[ColAddress];
+            UpdateButtonState();
         }
 
         /// <summary>
@@ -153,6 +165,8 @@ namespace PlcTest.View.Controls
             {
                 _grid.Rows.RemoveAt(indexes[i]);
             }
+
+            UpdateButtonState();
         }
 
         /// <summary>当前行数（测试与宿主统计用）</summary>
@@ -204,8 +218,49 @@ namespace PlcTest.View.Controls
         /// <summary>开启 / 停止自动刷新</summary>
         public void ToggleAutoRefresh()
         {
-            _timer.Enabled = !_timer.Enabled;
-            _btnPause.Text = _timer.Enabled ? "暂停" : "开始";
+            SetAutoRefresh(!_timer.Enabled);
+        }
+
+        /// <summary>
+        /// 开/关自动刷新。表格空着时不允许开——空轮询没有意义。
+        /// </summary>
+        private void SetAutoRefresh(bool running)
+        {
+            if (running && _grid.Rows.Count == 0)
+            {
+                return;
+            }
+
+            if (_timer.Enabled == running)
+            {
+                return;
+            }
+
+            _timer.Enabled = running;
+            _btnPause.Text = running ? "暂停" : "开始";
+
+            Action<bool> handler = AutoRefreshChanged;
+            if (handler != null)
+            {
+                handler(running);
+            }
+        }
+
+        /// <summary>
+        /// 没有行时，刷新、删除、开始都没有意义，一律置灰；
+        /// 若此时还在自动刷新（比如刚把最后一行删掉），顺手停掉。
+        /// </summary>
+        private void UpdateButtonState()
+        {
+            bool hasRows = _grid.Rows.Count > 0;
+            _btnRemove.Enabled = hasRows;
+            _btnRefresh.Enabled = hasRows;
+            _btnPause.Enabled = hasRows;
+
+            if (!hasRows)
+            {
+                SetAutoRefresh(false);
+            }
         }
 
         /// <summary>

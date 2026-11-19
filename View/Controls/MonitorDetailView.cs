@@ -2,6 +2,7 @@ using PlcTest.View.Support;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace PlcTest.View.Controls
@@ -29,6 +30,9 @@ namespace PlcTest.View.Controls
         public MonitorDetailView()
         {
             InitializeComponent();
+
+            EnableDoubleBuffer(this);
+            EnableDoubleBuffer(_flow);
 
             _chkOnlySelected.CheckedChanged += (s, e) => ApplyFilter();
             _flow.SizeChanged += (s, e) => ResizeBlocks();
@@ -88,6 +92,7 @@ namespace PlcTest.View.Controls
             }
 
             _flow.SuspendLayout();
+            _flow.Visible = false;
             try
             {
                 foreach (MonitorRegionBlock block in _blocks)
@@ -110,6 +115,7 @@ namespace PlcTest.View.Controls
             finally
             {
                 _flow.ResumeLayout();
+                _flow.Visible = true;
             }
 
             if (_selectedIndex >= _blocks.Count)
@@ -137,6 +143,18 @@ namespace PlcTest.View.Controls
         }
 
         /// <summary>
+        /// 清空所有区块的读数。停止自动刷新时调用：
+        /// 不再变化的数字留在屏幕上，比空着更容易被当成实时值。
+        /// </summary>
+        public void ClearValues()
+        {
+            foreach (MonitorRegionBlock block in _blocks)
+            {
+                block.ClearValues();
+            }
+        }
+
+        /// <summary>
         /// 定位到某个区块：选中、展开并滚动到可见位置。双击监视表的行时调用。
         /// </summary>
         /// <param name="index">条目序号</param>
@@ -157,6 +175,22 @@ namespace PlcTest.View.Controls
         }
 
         #region 内部
+
+        /// <summary>打开控件及其容器的双缓冲。</summary>
+        private static void EnableDoubleBuffer(Control control)
+        {
+            if (control == null)
+            {
+                return;
+            }
+
+            PropertyInfo property = typeof(Control).GetProperty(
+                "DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (property != null)
+            {
+                property.SetValue(control, true, null);
+            }
+        }
 
         private bool IsSameAsCurrent(List<MonitorItem> next)
         {
