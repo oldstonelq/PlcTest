@@ -43,6 +43,14 @@ namespace PlcTest.View.Forms
             this._tabs = new System.Windows.Forms.TabControl();
             this._pageRegisters = new System.Windows.Forms.TabPage();
             this._registerLayout = new System.Windows.Forms.TableLayoutPanel();
+            this._registerBar = new System.Windows.Forms.FlowLayoutPanel();
+            this._btnInit = new System.Windows.Forms.Button();
+            this._btnResetRange = new System.Windows.Forms.Button();
+            this._btnResetAll = new System.Windows.Forms.Button();
+            this._btnRemoveArea = new System.Windows.Forms.Button();
+            this._btnRandom = new System.Windows.Forms.Button();
+            this._registerHint = new System.Windows.Forms.Label();
+            this._monitor = new PlcTest.View.Controls.MonitorGrid();
             this._pageDetail = new System.Windows.Forms.TabPage();
             this._detail = new PlcTest.View.Controls.MonitorDetailView();
             this._pageSingle = new System.Windows.Forms.TabPage();
@@ -57,14 +65,6 @@ namespace PlcTest.View.Forms
             this._btnWrite = new System.Windows.Forms.Button();
             this._frameLog = new PlcTest.View.Controls.FrameLogView();
             this._statusTimer = new System.Windows.Forms.Timer(this.components);
-            this._registerHint = new System.Windows.Forms.Label();
-            this._btnRandom = new System.Windows.Forms.Button();
-            this._btnRemoveArea = new System.Windows.Forms.Button();
-            this._btnResetAll = new System.Windows.Forms.Button();
-            this._btnResetRange = new System.Windows.Forms.Button();
-            this._btnInit = new System.Windows.Forms.Button();
-            this._registerBar = new System.Windows.Forms.FlowLayoutPanel();
-            this._monitor = new PlcTest.View.Controls.MonitorGrid();
             this._root.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._middle)).BeginInit();
             this._middle.Panel1.SuspendLayout();
@@ -73,13 +73,13 @@ namespace PlcTest.View.Forms
             this._leftHost.SuspendLayout();
             this._tabs.SuspendLayout();
             this._pageRegisters.SuspendLayout();
-            this._pageDetail.SuspendLayout();
             this._registerLayout.SuspendLayout();
+            this._registerBar.SuspendLayout();
+            this._pageDetail.SuspendLayout();
             this._pageSingle.SuspendLayout();
             this._singleLayout.SuspendLayout();
             this._readBar.SuspendLayout();
             this._writeBar.SuspendLayout();
-            this._registerBar.SuspendLayout();
             this.SuspendLayout();
             // 
             // _root
@@ -98,7 +98,7 @@ namespace PlcTest.View.Forms
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 220F));
-            this._root.Size = new System.Drawing.Size(1020, 660);
+            this._root.Size = new System.Drawing.Size(1280, 820);
             this._root.TabIndex = 0;
             // 
             // _labStatus
@@ -108,7 +108,7 @@ namespace PlcTest.View.Forms
             this._labStatus.Location = new System.Drawing.Point(3, 0);
             this._labStatus.Name = "_labStatus";
             this._labStatus.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this._labStatus.Size = new System.Drawing.Size(1014, 26);
+            this._labStatus.Size = new System.Drawing.Size(1274, 26);
             this._labStatus.TabIndex = 0;
             this._labStatus.Text = "PLC 服务端工作台";
             this._labStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -122,7 +122,7 @@ namespace PlcTest.View.Forms
             this._addressPanel.Length = 1;
             this._addressPanel.Location = new System.Drawing.Point(3, 29);
             this._addressPanel.Name = "_addressPanel";
-            this._addressPanel.Size = new System.Drawing.Size(1014, 34);
+            this._addressPanel.Size = new System.Drawing.Size(1274, 34);
             this._addressPanel.TabIndex = 1;
             // 
             // _middle
@@ -139,7 +139,7 @@ namespace PlcTest.View.Forms
             // _middle.Panel2
             // 
             this._middle.Panel2.Controls.Add(this._tabs);
-            this._middle.Size = new System.Drawing.Size(1014, 418);
+            this._middle.Size = new System.Drawing.Size(1274, 528);
             this._middle.SplitterDistance = 190;
             this._middle.TabIndex = 2;
             // 
@@ -150,7 +150,7 @@ namespace PlcTest.View.Forms
             this._leftHost.Dock = System.Windows.Forms.DockStyle.Fill;
             this._leftHost.Location = new System.Drawing.Point(0, 0);
             this._leftHost.Name = "_leftHost";
-            this._leftHost.Size = new System.Drawing.Size(190, 418);
+            this._leftHost.Size = new System.Drawing.Size(190, 528);
             this._leftHost.TabIndex = 0;
             // 
             // _lstAreas
@@ -162,7 +162,7 @@ namespace PlcTest.View.Forms
             this._lstAreas.ItemHeight = 14;
             this._lstAreas.Location = new System.Drawing.Point(0, 24);
             this._lstAreas.Name = "_lstAreas";
-            this._lstAreas.Size = new System.Drawing.Size(190, 394);
+            this._lstAreas.Size = new System.Drawing.Size(190, 504);
             this._lstAreas.TabIndex = 1;
             // 
             // _leftTitle
@@ -186,7 +186,7 @@ namespace PlcTest.View.Forms
             this._tabs.Location = new System.Drawing.Point(0, 0);
             this._tabs.Name = "_tabs";
             this._tabs.SelectedIndex = 0;
-            this._tabs.Size = new System.Drawing.Size(820, 418);
+            this._tabs.Size = new System.Drawing.Size(1080, 528);
             this._tabs.TabIndex = 0;
             // 
             // _pageRegisters
@@ -195,7 +195,7 @@ namespace PlcTest.View.Forms
             this._pageRegisters.Location = new System.Drawing.Point(4, 24);
             this._pageRegisters.Name = "_pageRegisters";
             this._pageRegisters.Padding = new System.Windows.Forms.Padding(3);
-            this._pageRegisters.Size = new System.Drawing.Size(812, 390);
+            this._pageRegisters.Size = new System.Drawing.Size(1072, 500);
             this._pageRegisters.TabIndex = 0;
             this._pageRegisters.Text = "模拟寄存器";
             this._pageRegisters.UseVisualStyleBackColor = true;
@@ -213,8 +213,115 @@ namespace PlcTest.View.Forms
             this._registerLayout.RowCount = 2;
             this._registerLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 41F));
             this._registerLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this._registerLayout.Size = new System.Drawing.Size(806, 384);
+            this._registerLayout.Size = new System.Drawing.Size(1066, 494);
             this._registerLayout.TabIndex = 0;
+            // 
+            // _registerBar
+            // 
+            this._registerBar.Controls.Add(this._btnInit);
+            this._registerBar.Controls.Add(this._btnResetRange);
+            this._registerBar.Controls.Add(this._btnResetAll);
+            this._registerBar.Controls.Add(this._btnRemoveArea);
+            this._registerBar.Controls.Add(this._btnRandom);
+            this._registerBar.Controls.Add(this._registerHint);
+            this._registerBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._registerBar.Location = new System.Drawing.Point(9, 9);
+            this._registerBar.Name = "_registerBar";
+            this._registerBar.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
+            this._registerBar.Size = new System.Drawing.Size(1048, 35);
+            this._registerBar.TabIndex = 0;
+            this._registerBar.WrapContents = false;
+            // 
+            // _btnInit
+            // 
+            this._btnInit.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._btnInit.Location = new System.Drawing.Point(0, 5);
+            this._btnInit.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
+            this._btnInit.Name = "_btnInit";
+            this._btnInit.Size = new System.Drawing.Size(92, 24);
+            this._btnInit.TabIndex = 0;
+            this._btnInit.Text = "初始化区间";
+            // 
+            // _btnResetRange
+            // 
+            this._btnResetRange.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._btnResetRange.Location = new System.Drawing.Point(98, 5);
+            this._btnResetRange.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
+            this._btnResetRange.Name = "_btnResetRange";
+            this._btnResetRange.Size = new System.Drawing.Size(80, 24);
+            this._btnResetRange.TabIndex = 1;
+            this._btnResetRange.Text = "清零区间";
+            // 
+            // _btnResetAll
+            // 
+            this._btnResetAll.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._btnResetAll.Location = new System.Drawing.Point(184, 5);
+            this._btnResetAll.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
+            this._btnResetAll.Name = "_btnResetAll";
+            this._btnResetAll.Size = new System.Drawing.Size(80, 24);
+            this._btnResetAll.TabIndex = 2;
+            this._btnResetAll.Text = "全部清零";
+            // 
+            // _btnRemoveArea
+            // 
+            this._btnRemoveArea.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._btnRemoveArea.Location = new System.Drawing.Point(270, 5);
+            this._btnRemoveArea.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
+            this._btnRemoveArea.Name = "_btnRemoveArea";
+            this._btnRemoveArea.Size = new System.Drawing.Size(80, 24);
+            this._btnRemoveArea.TabIndex = 3;
+            this._btnRemoveArea.Text = "移除区域";
+            // 
+            // _btnRandom
+            // 
+            this._btnRandom.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this._btnRandom.Location = new System.Drawing.Point(356, 5);
+            this._btnRandom.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
+            this._btnRandom.Name = "_btnRandom";
+            this._btnRandom.Size = new System.Drawing.Size(80, 24);
+            this._btnRandom.TabIndex = 4;
+            this._btnRandom.Text = "随机填充";
+            // 
+            // _registerHint
+            // 
+            this._registerHint.AutoSize = true;
+            this._registerHint.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this._registerHint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(95)))), ((int)(((byte)(94)))), ((int)(((byte)(90)))));
+            this._registerHint.Location = new System.Drawing.Point(450, 9);
+            this._registerHint.Margin = new System.Windows.Forms.Padding(8, 5, 0, 0);
+            this._registerHint.Name = "_registerHint";
+            this._registerHint.Size = new System.Drawing.Size(220, 13);
+            this._registerHint.TabIndex = 5;
+            this._registerHint.Text = "清零只置 0（地址保留）；移除会删地址";
+            // 
+            // _monitor
+            // 
+            this._monitor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._monitor.Location = new System.Drawing.Point(9, 50);
+            this._monitor.Name = "_monitor";
+            this._monitor.Reader = null;
+            this._monitor.Size = new System.Drawing.Size(1048, 435);
+            this._monitor.TabIndex = 1;
+            // 
+            // _pageDetail
+            // 
+            this._pageDetail.Controls.Add(this._detail);
+            this._pageDetail.Location = new System.Drawing.Point(4, 24);
+            this._pageDetail.Name = "_pageDetail";
+            this._pageDetail.Padding = new System.Windows.Forms.Padding(3);
+            this._pageDetail.Size = new System.Drawing.Size(1072, 500);
+            this._pageDetail.TabIndex = 1;
+            this._pageDetail.Text = "详情";
+            this._pageDetail.UseVisualStyleBackColor = true;
+            // 
+            // _detail
+            // 
+            this._detail.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._detail.Location = new System.Drawing.Point(3, 3);
+            this._detail.Name = "_detail";
+            this._detail.OnlySelected = false;
+            this._detail.Size = new System.Drawing.Size(1066, 494);
+            this._detail.TabIndex = 0;
             // 
             // _pageSingle
             // 
@@ -336,121 +443,15 @@ namespace PlcTest.View.Forms
             // _frameLog
             // 
             this._frameLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._frameLog.Location = new System.Drawing.Point(3, 493);
+            this._frameLog.Location = new System.Drawing.Point(3, 603);
             this._frameLog.MaxLines = 500;
             this._frameLog.Name = "_frameLog";
-            this._frameLog.Size = new System.Drawing.Size(1014, 164);
+            this._frameLog.Size = new System.Drawing.Size(1274, 214);
             this._frameLog.TabIndex = 3;
             // 
             // _statusTimer
             // 
             this._statusTimer.Interval = 500;
-            // 
-            // _registerHint
-            // 
-            this._registerHint.AutoSize = true;
-            this._registerHint.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this._registerHint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(95)))), ((int)(((byte)(94)))), ((int)(((byte)(90)))));
-            this._registerHint.Location = new System.Drawing.Point(450, 9);
-            this._registerHint.Margin = new System.Windows.Forms.Padding(8, 5, 0, 0);
-            this._registerHint.Name = "_registerHint";
-            this._registerHint.Size = new System.Drawing.Size(220, 13);
-            this._registerHint.TabIndex = 5;
-            this._registerHint.Text = "清零只置 0（地址保留）；移除会删地址";
-            // 
-            // _btnRandom
-            // 
-            this._btnRandom.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._btnRandom.Location = new System.Drawing.Point(356, 5);
-            this._btnRandom.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
-            this._btnRandom.Name = "_btnRandom";
-            this._btnRandom.Size = new System.Drawing.Size(80, 24);
-            this._btnRandom.TabIndex = 4;
-            this._btnRandom.Text = "随机填充";
-            // 
-            // _btnRemoveArea
-            // 
-            this._btnRemoveArea.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._btnRemoveArea.Location = new System.Drawing.Point(270, 5);
-            this._btnRemoveArea.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
-            this._btnRemoveArea.Name = "_btnRemoveArea";
-            this._btnRemoveArea.Size = new System.Drawing.Size(80, 24);
-            this._btnRemoveArea.TabIndex = 3;
-            this._btnRemoveArea.Text = "移除区域";
-            // 
-            // _btnResetAll
-            // 
-            this._btnResetAll.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._btnResetAll.Location = new System.Drawing.Point(184, 5);
-            this._btnResetAll.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
-            this._btnResetAll.Name = "_btnResetAll";
-            this._btnResetAll.Size = new System.Drawing.Size(80, 24);
-            this._btnResetAll.TabIndex = 2;
-            this._btnResetAll.Text = "全部清零";
-            // 
-            // _btnResetRange
-            // 
-            this._btnResetRange.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._btnResetRange.Location = new System.Drawing.Point(98, 5);
-            this._btnResetRange.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
-            this._btnResetRange.Name = "_btnResetRange";
-            this._btnResetRange.Size = new System.Drawing.Size(80, 24);
-            this._btnResetRange.TabIndex = 1;
-            this._btnResetRange.Text = "清零区间";
-            // 
-            // _btnInit
-            // 
-            this._btnInit.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._btnInit.Location = new System.Drawing.Point(0, 5);
-            this._btnInit.Margin = new System.Windows.Forms.Padding(0, 1, 6, 0);
-            this._btnInit.Name = "_btnInit";
-            this._btnInit.Size = new System.Drawing.Size(92, 24);
-            this._btnInit.TabIndex = 0;
-            this._btnInit.Text = "初始化区间";
-            // 
-            // _registerBar
-            // 
-            this._registerBar.Controls.Add(this._btnInit);
-            this._registerBar.Controls.Add(this._btnResetRange);
-            this._registerBar.Controls.Add(this._btnResetAll);
-            this._registerBar.Controls.Add(this._btnRemoveArea);
-            this._registerBar.Controls.Add(this._btnRandom);
-            this._registerBar.Controls.Add(this._registerHint);
-            this._registerBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._registerBar.Location = new System.Drawing.Point(9, 9);
-            this._registerBar.Name = "_registerBar";
-            this._registerBar.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
-            this._registerBar.Size = new System.Drawing.Size(788, 35);
-            this._registerBar.TabIndex = 0;
-            this._registerBar.WrapContents = false;
-            // 
-            // _pageDetail
-            // 
-            this._pageDetail.Controls.Add(this._detail);
-            this._pageDetail.Location = new System.Drawing.Point(4, 22);
-            this._pageDetail.Name = "_pageDetail";
-            this._pageDetail.Padding = new System.Windows.Forms.Padding(3);
-            this._pageDetail.Size = new System.Drawing.Size(812, 432);
-            this._pageDetail.TabIndex = 1;
-            this._pageDetail.Text = "详情";
-            this._pageDetail.UseVisualStyleBackColor = true;
-            // 
-            // _detail
-            // 
-            this._detail.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._detail.Location = new System.Drawing.Point(3, 3);
-            this._detail.Name = "_detail";
-            this._detail.Size = new System.Drawing.Size(806, 426);
-            this._detail.TabIndex = 0;
-            // 
-            // _monitor
-            // 
-            this._monitor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._monitor.Location = new System.Drawing.Point(9, 50);
-            this._monitor.Name = "_monitor";
-            this._monitor.Reader = null;
-            this._monitor.Size = new System.Drawing.Size(788, 325);
-            this._monitor.TabIndex = 1;
             // 
             // PlcServerWorkspaceForm
             // 
@@ -473,16 +474,16 @@ namespace PlcTest.View.Forms
             this._leftHost.ResumeLayout(false);
             this._tabs.ResumeLayout(false);
             this._pageRegisters.ResumeLayout(false);
-            this._pageDetail.ResumeLayout(false);
             this._registerLayout.ResumeLayout(false);
+            this._registerBar.ResumeLayout(false);
+            this._registerBar.PerformLayout();
+            this._pageDetail.ResumeLayout(false);
             this._pageSingle.ResumeLayout(false);
             this._singleLayout.ResumeLayout(false);
             this._singleLayout.PerformLayout();
             this._readBar.ResumeLayout(false);
             this._writeBar.ResumeLayout(false);
             this._writeBar.PerformLayout();
-            this._registerBar.ResumeLayout(false);
-            this._registerBar.PerformLayout();
             this.ResumeLayout(false);
 
         }

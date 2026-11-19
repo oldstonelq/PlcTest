@@ -218,6 +218,9 @@
     <EmbeddedResource Include="View\Forms\PlcServerWorkspaceForm.resx">
       <DependentUpon>PlcServerWorkspaceForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="View\Forms\PlcWorkspaceForm.resx">
+      <DependentUpon>PlcWorkspaceForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\Settings.settings" />

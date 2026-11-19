@@ -55,7 +55,7 @@ namespace PlcTest.View.Forms
             this._writeLabel = new System.Windows.Forms.Label();
             this._tbWriteValue = new System.Windows.Forms.TextBox();
             this._btnWrite = new System.Windows.Forms.Button();
-            this._frameLog = new FrameLogView();
+            this._frameLog = new PlcTest.View.Controls.FrameLogView();
             this._statusTimer = new System.Windows.Forms.Timer(this.components);
             this._root.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this._middle)).BeginInit();
@@ -86,7 +86,7 @@ namespace PlcTest.View.Forms
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this._root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 220F));
-            this._root.Size = new System.Drawing.Size(1020, 660);
+            this._root.Size = new System.Drawing.Size(1280, 820);
             this._root.TabIndex = 0;
             // 
             // _labStatus
@@ -96,7 +96,7 @@ namespace PlcTest.View.Forms
             this._labStatus.Location = new System.Drawing.Point(3, 0);
             this._labStatus.Name = "_labStatus";
             this._labStatus.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this._labStatus.Size = new System.Drawing.Size(1014, 26);
+            this._labStatus.Size = new System.Drawing.Size(1274, 26);
             this._labStatus.TabIndex = 0;
             this._labStatus.Text = "PLC 工作台";
             this._labStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -115,9 +115,8 @@ namespace PlcTest.View.Forms
             // _middle.Panel2
             // 
             this._middle.Panel2.Controls.Add(this._tabs);
-            this._middle.Size = new System.Drawing.Size(1014, 458);
+            this._middle.Size = new System.Drawing.Size(1274, 568);
             this._middle.SplitterDistance = 190;
-            this._middle.SplitterWidth = 4;
             this._middle.TabIndex = 1;
             // 
             // _leftHost
@@ -127,7 +126,7 @@ namespace PlcTest.View.Forms
             this._leftHost.Dock = System.Windows.Forms.DockStyle.Fill;
             this._leftHost.Location = new System.Drawing.Point(0, 0);
             this._leftHost.Name = "_leftHost";
-            this._leftHost.Size = new System.Drawing.Size(190, 458);
+            this._leftHost.Size = new System.Drawing.Size(190, 568);
             this._leftHost.TabIndex = 0;
             // 
             // _lstAreas
@@ -136,9 +135,10 @@ namespace PlcTest.View.Forms
             this._lstAreas.Dock = System.Windows.Forms.DockStyle.Fill;
             this._lstAreas.Font = new System.Drawing.Font("Consolas", 9F);
             this._lstAreas.IntegralHeight = false;
+            this._lstAreas.ItemHeight = 14;
             this._lstAreas.Location = new System.Drawing.Point(0, 24);
             this._lstAreas.Name = "_lstAreas";
-            this._lstAreas.Size = new System.Drawing.Size(190, 434);
+            this._lstAreas.Size = new System.Drawing.Size(190, 544);
             this._lstAreas.TabIndex = 1;
             // 
             // _leftTitle
@@ -162,27 +162,36 @@ namespace PlcTest.View.Forms
             this._tabs.Location = new System.Drawing.Point(0, 0);
             this._tabs.Name = "_tabs";
             this._tabs.SelectedIndex = 0;
-            this._tabs.Size = new System.Drawing.Size(820, 458);
+            this._tabs.Size = new System.Drawing.Size(1080, 568);
             this._tabs.TabIndex = 0;
             // 
             // _pageMonitor
             // 
             this._pageMonitor.Controls.Add(this._monitor);
-            this._pageMonitor.Location = new System.Drawing.Point(4, 22);
+            this._pageMonitor.Location = new System.Drawing.Point(4, 24);
             this._pageMonitor.Name = "_pageMonitor";
             this._pageMonitor.Padding = new System.Windows.Forms.Padding(3);
-            this._pageMonitor.Size = new System.Drawing.Size(812, 432);
+            this._pageMonitor.Size = new System.Drawing.Size(1072, 540);
             this._pageMonitor.TabIndex = 0;
             this._pageMonitor.Text = "监视";
             this._pageMonitor.UseVisualStyleBackColor = true;
             // 
+            // _monitor
+            // 
+            this._monitor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._monitor.Location = new System.Drawing.Point(3, 3);
+            this._monitor.Name = "_monitor";
+            this._monitor.Reader = null;
+            this._monitor.Size = new System.Drawing.Size(1066, 534);
+            this._monitor.TabIndex = 0;
+            // 
             // _pageDetail
             // 
             this._pageDetail.Controls.Add(this._detail);
-            this._pageDetail.Location = new System.Drawing.Point(4, 22);
+            this._pageDetail.Location = new System.Drawing.Point(4, 24);
             this._pageDetail.Name = "_pageDetail";
             this._pageDetail.Padding = new System.Windows.Forms.Padding(3);
-            this._pageDetail.Size = new System.Drawing.Size(812, 432);
+            this._pageDetail.Size = new System.Drawing.Size(1072, 540);
             this._pageDetail.TabIndex = 1;
             this._pageDetail.Text = "详情";
             this._pageDetail.UseVisualStyleBackColor = true;
@@ -192,16 +201,9 @@ namespace PlcTest.View.Forms
             this._detail.Dock = System.Windows.Forms.DockStyle.Fill;
             this._detail.Location = new System.Drawing.Point(3, 3);
             this._detail.Name = "_detail";
-            this._detail.Size = new System.Drawing.Size(806, 426);
+            this._detail.OnlySelected = false;
+            this._detail.Size = new System.Drawing.Size(1066, 534);
             this._detail.TabIndex = 0;
-            // 
-            // _monitor
-            // 
-            this._monitor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._monitor.Location = new System.Drawing.Point(3, 3);
-            this._monitor.Name = "_monitor";
-            this._monitor.Size = new System.Drawing.Size(806, 426);
-            this._monitor.TabIndex = 0;
             // 
             // _pageSingle
             // 
@@ -236,8 +238,11 @@ namespace PlcTest.View.Forms
             // 
             // _addressPanel
             // 
+            this._addressPanel.AddressText = "";
             this._addressPanel.BackColor = System.Drawing.Color.Transparent;
             this._addressPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._addressPanel.Kind = PlcTest.View.Support.AddressValueKind.Bit;
+            this._addressPanel.Length = 1;
             this._addressPanel.Location = new System.Drawing.Point(9, 9);
             this._addressPanel.Name = "_addressPanel";
             this._addressPanel.Size = new System.Drawing.Size(788, 34);
@@ -284,7 +289,7 @@ namespace PlcTest.View.Forms
             this._tbReadResult.Name = "_tbReadResult";
             this._tbReadResult.ReadOnly = true;
             this._tbReadResult.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this._tbReadResult.Size = new System.Drawing.Size(788, 300);
+            this._tbReadResult.Size = new System.Drawing.Size(788, 304);
             this._tbReadResult.TabIndex = 2;
             this._tbReadResult.WordWrap = false;
             // 
@@ -294,7 +299,7 @@ namespace PlcTest.View.Forms
             this._writeBar.Controls.Add(this._tbWriteValue);
             this._writeBar.Controls.Add(this._btnWrite);
             this._writeBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._writeBar.Location = new System.Drawing.Point(9, 387);
+            this._writeBar.Location = new System.Drawing.Point(9, 391);
             this._writeBar.Name = "_writeBar";
             this._writeBar.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this._writeBar.Size = new System.Drawing.Size(788, 26);
@@ -309,14 +314,14 @@ namespace PlcTest.View.Forms
             this._writeLabel.Location = new System.Drawing.Point(0, 10);
             this._writeLabel.Margin = new System.Windows.Forms.Padding(0, 7, 4, 0);
             this._writeLabel.Name = "_writeLabel";
-            this._writeLabel.Size = new System.Drawing.Size(41, 12);
+            this._writeLabel.Size = new System.Drawing.Size(43, 13);
             this._writeLabel.TabIndex = 0;
             this._writeLabel.Text = "写入值";
             // 
             // _tbWriteValue
             // 
             this._tbWriteValue.Font = new System.Drawing.Font("Consolas", 9F);
-            this._tbWriteValue.Location = new System.Drawing.Point(45, 6);
+            this._tbWriteValue.Location = new System.Drawing.Point(50, 6);
             this._tbWriteValue.Name = "_tbWriteValue";
             this._tbWriteValue.Size = new System.Drawing.Size(240, 22);
             this._tbWriteValue.TabIndex = 1;
@@ -324,7 +329,7 @@ namespace PlcTest.View.Forms
             // _btnWrite
             // 
             this._btnWrite.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this._btnWrite.Location = new System.Drawing.Point(291, 7);
+            this._btnWrite.Location = new System.Drawing.Point(299, 4);
             this._btnWrite.Margin = new System.Windows.Forms.Padding(6, 1, 6, 0);
             this._btnWrite.Name = "_btnWrite";
             this._btnWrite.Size = new System.Drawing.Size(74, 24);
@@ -334,9 +339,10 @@ namespace PlcTest.View.Forms
             // _frameLog
             // 
             this._frameLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._frameLog.Location = new System.Drawing.Point(3, 493);
+            this._frameLog.Location = new System.Drawing.Point(3, 603);
+            this._frameLog.MaxLines = 500;
             this._frameLog.Name = "_frameLog";
-            this._frameLog.Size = new System.Drawing.Size(1014, 164);
+            this._frameLog.Size = new System.Drawing.Size(1274, 214);
             this._frameLog.TabIndex = 2;
             // 
             // _statusTimer
@@ -345,7 +351,7 @@ namespace PlcTest.View.Forms
             // 
             // PlcWorkspaceForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1280, 820);
             this.Controls.Add(this._root);
@@ -372,6 +378,7 @@ namespace PlcTest.View.Forms
             this._writeBar.ResumeLayout(false);
             this._writeBar.PerformLayout();
             this.ResumeLayout(false);
+
         }
 
         private System.Windows.Forms.TableLayoutPanel _root;
